@@ -24,7 +24,7 @@
             padding: clamp(0.8rem, 3vw, 2rem);
         }
 
-        。admin-card {
+        .admin-card {
             width: 100%;
             max-width: 900px;
             background: #ffffff;
@@ -322,7 +322,7 @@
         </div>
         <div class="input-group">
             <label>🔐 密码</label>
-            <input type="password" id="adminPassword" autocomplete="off">
+            <input type="password" id="adminPassword" placeholder="" autocomplete="off">
         </div>
         <button onclick="window.handleLogin()">登录后台</button>
         <button class="secondary" onclick="window.location.href='index.html'">返回首页</button>
@@ -713,8 +713,8 @@
                 } else {
                     // 新增链接
                     ({ error } = await window.supabase
-                        。from('links')
-                        。insert([linkData]));
+                        .from('links')
+                        .insert([linkData]));
                 }
 
                 if (error) throw error;
