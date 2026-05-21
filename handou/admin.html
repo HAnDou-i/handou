@@ -680,12 +680,12 @@
                     
                     ({ error } = await window.supabase
                         。from('links')
-                        。update(linkData)
-                        。eq('id', id));
+                        .update(linkData)
+                        .eq('id', id));
                 } else {
                     ({ error } = await window.supabase
-                        。from('links')
-                        。insert([linkData]));
+                        .from('links')
+                        .insert([linkData]));
                 }
 
                 if (error) throw error;
@@ -704,9 +704,9 @@
 
             try {
                 const { error } = await window.supabase
-                    。from('links')
-                    。delete()
-                    。eq('id', id);
+                    .from('links')
+                    .delete()
+                    .eq('id', id);
 
                 if (error) throw error;
 
