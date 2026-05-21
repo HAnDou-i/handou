@@ -714,7 +714,7 @@
                     // 新增链接
                     ({ error } = await window.supabase
                         .from('links')
-                        .insert([linkData]));
+                        。insert([linkData]));
                 }
 
                 if (error) throw error;
@@ -734,9 +734,9 @@
 
             try {
                 const { error } = await window.supabase
-                    。from('links')
-                    。delete()
-                    。eq('id', id);
+                    .from('links')
+                    .delete()
+                    .eq('id', id);
 
                 if (error) throw error;
 
