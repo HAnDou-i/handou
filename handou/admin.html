@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HanDou · 链接管理后台</title>
+    <!-- 使用更稳定的 CDN 链接 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <style>
+        /* 样式保持不变 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f5f7fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(0.8rem, 3vw, 2rem);
+        }
+
+        .admin-card {
+            width: 100%;
+            max-width: 900px;
+            background: #ffffff;
+            border-radius: clamp(28px, 5vw, 42px);
+            padding: clamp(1.2rem, 4vw, 2.4rem);
+            box-shadow: 0 20px 35px -8px rgba(0,0,0,0.1);
+            border: 1px solid #eaeef3;
+        }
+
+        h1 {
+            color: #1a2b3c;
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .subtitle {
+            color: #62748c;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px dashed #ccd7e5;
+        }
+
+        .login-form, .admin-panel {
+            display: none;
+        }
+        .login-form.active, .admin-panel.active {
+            display: block;
+        }
+
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2d4059;
+            font-weight: 500;
+        }
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%;
+            padding: 0.8rem 1.2rem;
+            border: 1px solid #dbe0e8;
+            border-radius: 30px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+            outline: none;
+            border-color: #7f9fc9;
+            box-shadow: 0 0 0 3px rgba(127, 159, 201, 0.1);
+        }
+        .input-group textarea {
+            border-radius: 20px;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        button {
+            background: #203d61;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 0.8rem;
+            margin-bottom: 0.8rem;
+            border: 1px solid transparent;
+        }
+        button:hover {
+            background: #254e7a;
+            transform: translateY(-1px);
+        }
+        button.secondary {
+            background: white;
+            color: #1f3a5c;
+            border: 1px solid #c7d6ea;
+        }
+        button.secondary:hover {
+            background: #f2f6fc;
+            border-color: #9bb2cf;
+        }
+        button.danger {
+            background: #dc3545;
+        }
+        button.danger:hover {
+            background: #c82333;
+        }
+        button.small {
+            padding: 0.4rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .links-list {
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .link-item {
+            background: #f9fbfe;
+            border: 1px solid #e2e8f0;
+            border-radius: 50px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+        }
+        .link-item:hover {
+            border-color: #bcc9dc;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+        }
+
+        .link-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .link-title {
+            font-weight: 600;
+            color: #1a2b3f;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .link-url {
+            color: #62748c;
+            font-size: 0.9rem;
+            word-break: break-all;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .link-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.85rem;
+            color: #7f8fa4;
+            flex-wrap: wrap;
+            margin-top: 0.3rem;
+        }
+        .link-meta span {
+            background: #eef3f9;
+            padding: 0.2rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid #c8d7ec;
+        }
+
+        .link-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-left: 1rem;
+        }
+        .link-actions button {
+            padding: 0.5rem 1rem;
+            margin: 0;
+            font-size: 0.9rem;
+        }
+
+        .edit-form {
+            background: #f2f4f8;
+            border-radius: 30px;
+            padding: 1.8rem;
+            margin: 1.5rem 0;
+            border: 1px solid #d7e2f0;
+        }
+        .form-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1a2b3f;
+            margin-bottom: 1.5rem;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-badge {
+            background: #e8f0fe;
+            color: #203d61;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            border: 1px solid #b0c2d9;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #62748c;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #62748c;
+            background: #f9fbfe;
+            border-radius: 30px;
+            border: 2px dashed #ccd7e5;
+        }
+
+        .footer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #d8e2ef;
+            text-align: center;
+            color: #62748c;
+            font-size: 0.9rem;
+        }
+        .footer a {
+            color: #1f4172;
+            text-decoration: none;
+            border-bottom: 1px dotted;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 0.8rem 1.5rem;
+            background: #f0f5fc;
+            border-radius: 40px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .user-email {
+            color: #203d61;
+            font-weight: 500;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.9rem;
+            margin: 0.5rem 0 1rem;
+            padding: 0.5rem 1rem;
+            background: #ffe3e3;
+            border-radius: 20px;
+            display: none;
+        }
+        .success-message {
+            color: #0a5c0a;
+            font-size: 0.9rem;
+            margin: 0.5rem 0 1rem;
+            padding: 0.5rem 1rem;
+            background: #e3f7e3;
+            border-radius: 20px;
+            display: none;
+        }
+        .protected-badge {
+            background: #ffd966;
+            color: #856404;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        .form-footer {
+            margin-top: 1rem;
+            color: #62748c;
+            font-size: 0.9rem;
+        }
+        .form-footer a {
+            color: #203d61;
+            text-decoration: none;
+            border-bottom: 1px dotted;
+        }
+    </style>
+</head>
+<body>
+<div class="admin-card">
+    <h1>
+        <span>🔧 链接管理后台</span>
+        <span class="status-badge" id="connectionStatus">检查连接...</span>
+    </h1>
+    <div class="subtitle"></div>
+
+    <!-- 登录表单（注册功能已完全移除） -->
+    <div id="loginForm" class="login-form active">
+        <div class="input-group">
+            <label>📧 管理员账号</label>
+            <input type="email" id="adminEmail" placeholder="">
+        </div>
+        <div class="input-group">
+            <label>🔐 密码</label>
+            <input type="password" id="adminPassword" placeholder="" autocomplete="off">
+        </div>
+        <button onclick="window.handleLogin()">登录后台</button>
+        <button class="secondary" onclick="window.location.href='index.html'">返回首页</button>
+        
+        <div id="loginError" class="error-message"></div>
+        
+        <div class="form-footer">
+            <!-- 移除所有注册相关链接/提示 -->
+        </div>
+    </div>
+
+    <!-- 管理面板（登录后显示） -->
+    <div id="adminPanel" class="admin-panel">
+        <div id="userInfo" class="user-info" style="display: none;">
+            <span>👤 已登录：<span id="userEmail" class="user-email"></span></span>
+            <button class="secondary small" onclick="window.logout()" style="margin-left: auto;">退出登录</button>
+        </div>
+        
+        <div class="toolbar">
+            <button onclick="window.showAddForm()">➕ 新增链接</button>
+            <button class="secondary" onclick="window.refreshList()">🔄 刷新列表</button>
+        </div>
+
+        <!-- 新增/编辑表单 -->
+        <div id="editForm" class="edit-form" style="display: none;">
+            <div class="form-title" id="formTitle">➕ 新增链接</div>
+            <input type="hidden" id="editId" value="">
+            
+            <div class="input-group">
+                <label>标题 <span style="color: #dc3545;">*</span></label>
+                <input type="text" id="editTitle" placeholder="例如：飞牛安装软件" maxlength="50">
+            </div>
+            
+            <div class="input-group">
+                <label>URL地址 <span style="color: #dc3545;">*</span></label>
+                <input type="url" id="editUrl" placeholder="https://...">
+            </div>
+            
+            <div class="input-group">
+                <label>访问密码（可选）</label>
+                <input type="text" id="editPassword" placeholder="留空表示无需密码" maxlength="50">
+                <p style="font-size: 0.8rem; color: #7f8fa4; margin-top: 0.3rem;">设置密码后，访问该链接需要输入密码</p>
+            </div>
+            
+            <div class="input-group">
+                <label>排序序号（数字越小越靠前）</label>
+                <input type="number" id="editSortOrder" value="1" min="0" max="999">
+            </div>
+            
+            <div class="input-group">
+                <label>图标SVG（可选）</label>
+                <textarea id="editIcon" placeholder="&lt;svg viewBox=&quot;0 0 24 24&quot;&gt;...&lt;/svg&gt;" rows="4"></textarea>
+                <p style="font-size: 0.8rem; color: #7f8fa4; margin-top: 0.3rem;">如果不填，将使用默认箭头图标</p>
+            </div>
+            
+            <div>
+                <button onclick="window.saveLink()">💾 保存链接</button>
+                <button class="secondary" onclick="window.hideForm()">取消</button>
+            </div>
+        </div>
+
+        <!-- 链接列表容器 -->
+        <div id="linksList" class="links-list">
+            <div class="loading">⏳ 加载链接列表中...</div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span> </span>
+        <a href="#" onclick="window.location.reload(); return false;"></a>
+    </div>
+</div>
+
+<script>
+    // 等待 DOM 加载完成
+    document.addEventListener('DOMContentLoaded', function() {
+        // ===== Supabase 配置 =====
+        const SUPABASE_URL = 'https://mzxjyupadsakhsceidvm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16eGp5dXBhZHNha2hzY2VpZHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDUzNjYsImV4cCI6MjA4NzkyMTM2Nn0.M4sPqp3-oYuw7JlRYmcqnCkLbRPvDYi7O6yMMdPXu88';
+        
+        // 创建 Supabase 客户端（挂载到 window 供全局使用）
+        window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ===== 安全的HTML转义函数 =====
+        function escapeHtml(text) {
+            if (text === null || text === undefined) {
+                return '';
+            }
+            const str = String(text);
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // ===== 工具函数 =====
+        function showStatus(message, isSuccess = true) {
+            const statusEl = document.getElementById('connectionStatus');
+            if (statusEl) {
+                statusEl.textContent = message;
+                statusEl.style.background = isSuccess ? '#e3f7e3' : '#ffe3e3';
+                statusEl.style.color = isSuccess ? '#0a5c0a' : '#a00';
+                statusEl.style.borderColor = isSuccess ? '#8bc34a' : '#ff9f9f';
+            }
+        }
+
+        // ===== 登录 =====
+        window.handleLogin = async function() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
+            const errorEl = document.getElementById('loginError');
+            
+            errorEl.style.display = 'none';
+            errorEl.textContent = '';
+            
+            if (!email || !password) {
+                errorEl.textContent = '请填写邮箱和密码';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const { data, error } = await window.supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) throw error;
+                
+                if (data.session) {
+                    document.getElementById('loginForm').classList.remove('active');
+                    document.getElementById('adminPanel').classList.add('active');
+                    
+                    document.getElementById('userInfo').style.display = 'flex';
+                    document.getElementById('userEmail').textContent = data.user.email;
+                    
+                    showStatus('已登录', true);
+                    loadLinks();
+                }
+            } catch (error) {
+                console.error('登录失败:', error);
+                
+                let errorMessage = '';
+                if (error.message.includes('Invalid login credentials')) {
+                    errorMessage = '账号或密码错误';
+                } else if (error.message.includes('Email not confirmed')) {
+                    errorMessage = '账号错误';
+                } else if (error.message.includes('rate limit')) {
+                    errorMessage = '操作太频繁，请稍后再试';
+                } else {
+                    errorMessage = '登录失败：' + error.message;
+                }
+                
+                errorEl.textContent = errorMessage;
+                errorEl.style.display = 'block';
+            }
+        };
+
+        // ===== 退出登录 =====
+        window.logout = async function() {
+            try {
+                const { error } = await window.supabase.auth.signOut();
+                if (error) throw error;
+                
+                document.getElementById('adminPanel').classList.remove('active');
+                document.getElementById('loginForm').classList.add('active');
+                document.getElementById('userInfo').style.display = 'none';
+                document.getElementById('adminEmail').value = '';
+                document.getElementById('adminPassword').value = '';
+                showStatus('已退出', true);
+            } catch (error) {
+                console.error('退出失败:', error);
+                alert('退出失败：' + error.message);
+            }
+        };
+
+        // ===== 检查登录状态 =====
+        async function checkSession() {
+            try {
+                const { data: { session }, error } = await window.supabase.auth.getSession();
+                
+                if (error) throw error;
+                
+                if (session) {
+                    document.getElementById('loginForm').classList.remove('active');
+                    document.getElementById('adminPanel').classList.add('active');
+                    document.getElementById('userInfo').style.display = 'flex';
+                    document.getElementById('userEmail').textContent = session.user.email;
+                    showStatus('已登录', true);
+                    loadLinks();
+                } else {
+                    document.getElementById('loginForm').classList.add('active');
+                }
+            } catch (error) {
+                console.error('会话检查失败:', error);
+                document.getElementById('loginForm').classList.add('active');
+            }
+        }
+
+        // ===== 监听认证状态变化 =====
+        window.supabase.auth.onAuthStateChange((event, session) => {
+            console.log('Auth状态变化:', event);
+            if (event === 'SIGNED_OUT') {
+                document.getElementById('adminPanel').classList.remove('active');
+                document.getElementById('loginForm').classList.add('active');
+                document.getElementById('userInfo').style.display = 'none';
+            }
+        });
+
+        // ===== 加载链接列表 =====
+        async function loadLinks() {
+            const container = document.getElementById('linksList');
+            container.innerHTML = '<div class="loading">⏳ 加载链接列表中...</div>';
+
+            try {
+                const { data: links, error } = await window.supabase
+                    .from('links')
+                    .select('*')
+                    .order('sort_order', { ascending: true });
+
+                if (error) throw error;
+
+                if (!links || links.length === 0) {
+                    container.innerHTML = '<div class="empty-state">📭 还没有任何链接，点击上方 "➕ 新增链接" 添加</div>';
+                    return;
+                }
+
+                let html = '';
+                links.forEach(link => {
+                    const safeId = escapeHtml(link.id);
+                    const safeTitle = escapeHtml(link.title || '未命名');
+                    const safeUrl = escapeHtml(link.url || '');
+                    const safeSortOrder = escapeHtml(link.sort_order || 0);
+                    
+                    const hasPassword = link.password ? '🔒' : '🔓';
+                    const passwordText = link.password ? '密码保护' : '公开';
+                    
+                    html += `
+                        <div class="link-item" data-id="${safeId}">
+                            <div class="link-info">
+                                <div class="link-title">
+                                    ${safeTitle}
+                                    ${link.password ? '<span class="protected-badge">🔒 密码保护</span>' : ''}
+                                </div>
+                                <div class="link-url">${safeUrl}</div>
+                                <div class="link-meta">
+                                    <span>排序: ${safeSortOrder}</span>
+                                    <span>${hasPassword} ${passwordText}</span>
+                                    ${link.created_at ? `<span>📅 ${new Date(link.created_at).toLocaleDateString()}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="link-actions">
+                                <button class="secondary" onclick="window.editLink('${safeId}')">编辑</button>
+                                <button class="danger" onclick="window.deleteLink('${safeId}')">删除</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+                showStatus('连接成功', true);
+            } catch (error) {
+                console.error('加载失败:', error);
+                container.innerHTML = `<div class="empty-state">❌ 加载失败: ${escapeHtml(error.message)}</div>`;
+                showStatus('连接失败', false);
+            }
+        }
+
+        window.refreshList = function() {
+            loadLinks();
+        };
+
+        // ===== 表单操作 =====
+        window.showAddForm = function() {
+            document.getElementById('formTitle').innerText = '➕ 新增链接';
+            document.getElementById('editId').value = '';
+            document.getElementById('editTitle').value = '';
+            document.getElementById('editUrl').value = '';
+            document.getElementById('editPassword').value = '';
+            document.getElementById('editSortOrder').value = '1';
+            document.getElementById('editIcon').value = '';
+            document.getElementById('editForm').style.display = 'block';
+            document.getElementById('editForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        };
+
+        window.hideForm = function() {
+            document.getElementById('editForm').style.display = 'none';
+        };
+
+        window.editLink = async function(id) {
+            try {
+                const { data: link, error } = await window.supabase
+                    .from('links')
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+
+                if (error) throw error;
+
+                if (link) {
+                    document.getElementById('formTitle').innerText = '✏️ 编辑链接';
+                    document.getElementById('editId').value = link.id;
+                    document.getElementById('editTitle').value = link.title || '';
+                    document.getElementById('editUrl').value = link.url || '';
+                    document.getElementById('editPassword').value = link.password ? '********' : '';
+                    document.getElementById('editSortOrder').value = link.sort_order || 1;
+                    document.getElementById('editIcon').value = link.icon || '';
+                    document.getElementById('editForm').style.display = 'block';
+                    document.getElementById('editForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            } catch (error) {
+                console.error('加载链接失败:', error);
+                alert('加载链接失败：' + error.message);
+            }
+        };
+
+        // ===== 保存链接 =====
+        window.saveLink = async function() {
+            const id = document.getElementById('editId').value;
+            const title = document.getElementById('editTitle').value.trim();
+            const url = document.getElementById('editUrl').value.trim();
+            const password = document.getElementById('editPassword').value.trim();
+            const sortOrder = parseInt(document.getElementById('editSortOrder').value) || 1;
+            const icon = document.getElementById('editIcon').value.trim() || null;
+
+            // 验证
+            if (!title) {
+                alert('请输入标题');
+                return;
+            }
+            if (title.length > 50) {
+                alert('标题不能超过50个字符');
+                return;
+            }
+            
+            if (!url) {
+                alert('请输入URL地址');
+                return;
+            }
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                alert('URL必须以 http:// 或 https:// 开头');
+                return;
+            }
+            if (url.length > 500) {
+                alert('URL地址过长');
+                return;
+            }
+            
+            if (password && password.length > 50) {
+                alert('密码不能超过50个字符');
+                return;
+            }
+
+            // 构建数据
+            const linkData = {
+                title: title,
+                url: url,
+                sort_order: sortOrder,
+                icon: icon
+            };
+            
+            // 密码处理：如果填了新密码（不是掩码"********"）则更新，如果留空则置空
+            if (password && password !== '********') {
+                linkData.password = password;
+            } else if (!password) {
+                linkData.password = null;
+            }
+            // 如果password是掩码且原密码存在，则不更新password字段（保留原密码）
+
+            try {
+                let error;
+                
+                if (id) {
+                    // 更新时，如果没有提供新密码（即password是"********"或空），我们需要从对象中删除password字段以避免覆盖
+                    // 但上面的逻辑已经处理：仅当password有值且不是掩码时设置password；如果password为空则设置为null
+                    // 这样，对于掩码情况，linkData不包含password属性 → 更新时不会修改password列
+                    if (password === '********') {
+                        delete linkData.password; // 确保不发送password字段，保留数据库原值
+                    }
+                    // 对于空字符串，已经在上面置为null，会清空密码
+                    
+                    ({ error } = await window.supabase
+                        .from('links')
+                        .update(linkData)
+                        .eq('id', id));
+                } else {
+                    // 新增链接
+                    ({ error } = await window.supabase
+                        。from('links')
+                        。insert([linkData]));
+                }
+
+                if (error) throw error;
+
+                alert(id ? '✅ 更新成功' : '✅ 新增成功');
+                window.hideForm();
+                loadLinks();
+            } catch (error) {
+                console.error('保存失败:', error);
+                alert('❌ 保存失败: ' + error.message);
+            }
+        };
+
+        // ===== 删除链接 =====
+        window.deleteLink = async function(id) {
+            if (!confirm('确定要删除这个链接吗？此操作不可恢复！')) return;
+
+            try {
+                const { error } = await window.supabase
+                    。from('links')
+                    。delete()
+                    。eq('id', id);
+
+                if (error) throw error;
+
+                alert('✅ 删除成功');
+                loadLinks();
+            } catch (error) {
+                console.error('删除失败:', error);
+                alert('❌ 删除失败: ' + error.message);
+            }
+        };
+
+        // ===== 测试连接 =====
+        async function testConnection() {
+            try {
+                const { error } = await window.supabase.from('links').select('count', { count: 'exact', head: true });
+                if (error) throw error;
+                showStatus('数据库连接正常', true);
+            } catch (error) {
+                console.warn('连接测试:', error);
+                showStatus('连接失败', false);
+            }
+        }
+
+        // ===== 初始化 =====
+        testConnection();
+        checkSession();
+        
+        // 回车登录
+        document.getElementById('adminPassword')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                window.handleLogin();
+            }
+        });
+        
+        // 
+    });
+</script>
+</body>
+
+</html>
