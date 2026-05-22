@@ -3,15 +3,17 @@ const navCards = [
     icon: '🛒',
     title: '便携版文件',
     description: '解压即可运行无套路',
-    url: 'https://e.tb.cn/h.RdpvxZYYYgRqsIR?tk=ivhv5uUsWwc',
-    action: '立即购买'
+    actions: [
+      { text: '淘宝\n购买', url: 'https://e.tb.cn/h.RdpvxZYYYgRqsIR?tk=ivhv5uUsWwc' },
+      { text: '博主\n微信', url: 'https://www.kdocs.cn/l/cpFqiPsjvIFS' }, 
+    ]
   },
-    {
+  {
     icon: '📖',
     title: '安装说明',
     description: '便携版文件一些说明',
     url: 'https://www.kdocs.cn/l/coFEdkLtwPSX',
-    action: '查看说明'
+    action: '查看\n说明'
   },
   {
     icon: '🛠',
@@ -24,46 +26,46 @@ const navCards = [
 
 const toolCards = [
   {
-    icon: '🧠',
-    title: '灵感',
+    icon: '🖼️',
+    title: '免费4K壁纸',
     description: '',
-    url: 'https://www.notion.so',
+    url: 'https://haowallpaper.com/',
     action: '打开'
   },
   {
-    icon: '⏳',
-    title: '倒计时',
+    icon: '📝',
+    title: '完全免费的中文AI提示词',
     description: '',
-    url: 'https://time.is/',
+    url: 'https://prompt123.cn/',
     action: '查看'
   },
   {
-    icon: '📋',
-    title: '复制',
+    icon: '🎵',
+    title: '网易云音乐批量下载器',
     description: '',
-    url: 'https://www.notion.so',
+    url: 'https://mscdownload.pages.dev/',
     action: '前往'
   },
   {
-    icon: '🍰',
-    title: '热量',
+    icon: '🎶',
+    title: '抖音直播数据',
     description: '',
-    url: 'https://your-project-ref.supabase.co/functions/v1/calories?food=蛋糕',
+    url: 'https://douyin.phpnbw.com/',
     action: '查询'
   },
   {
-    icon: '📆',
-    title: '日历',
+    icon: '...',
+    title: '持续添加中',
     description: '',
-    url: 'https://calendar.google.com/',
-    action: '打开'
+    url: '#',
+    action: '无'
   },
   {
-    icon: '🗂️',
-    title: '网盘',
+    icon: '....',
+    title: '持续添加中',
     description: '',
-    url: 'https://drive.google.com/',
-    action: '进入'
+    url: '#',
+    action: '无'
   }
 ]
 
@@ -88,13 +90,18 @@ function renderCardList(list, container, template) {
 
   list.forEach((card) => {
     const fragment = template.content.cloneNode(true)
-    const link = fragment.querySelector('.nav-card')
+    const cardNode = fragment.querySelector('.nav-card')
     const icon = fragment.querySelector('.nav-card__icon')
     const title = fragment.querySelector('.nav-card__title')
     const description = fragment.querySelector('.nav-card__description')
     const action = fragment.querySelector('.nav-card__action')
+    const actions = fragment.querySelector('.nav-card__actions')
+    const url = normalizeUrl(card.url)
 
-    link.href = normalizeUrl(card.url)
+    if (cardNode.tagName === 'A') {
+      cardNode.href = url
+    }
+
     icon.textContent = card.icon || '✨'
     title.textContent = card.title || '未命名入口'
 
@@ -107,7 +114,25 @@ function renderCardList(list, container, template) {
       }
     }
 
-    action.textContent = card.action || '立即前往'
+    if (actions) {
+      const items = Array.isArray(card.actions) && card.actions.length
+        ? card.actions
+        : [{ text: card.action || '立即前往', url: card.url }]
+
+      actions.innerHTML = ''
+
+      items.forEach((item) => {
+        const actionLink = document.createElement('a')
+        actionLink.className = 'nav-card__action'
+        actionLink.target = '_blank'
+        actionLink.rel = 'noopener noreferrer'
+        actionLink.href = normalizeUrl(item.url)
+        actionLink.textContent = item.text || '立即前往'
+        actions.appendChild(actionLink)
+      })
+    } else if (action) {
+      action.textContent = card.action || '立即前往'
+    }
 
     container.appendChild(fragment)
   })
