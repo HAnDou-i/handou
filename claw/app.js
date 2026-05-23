@@ -54,11 +54,11 @@ const toolCards = [
     action: '查询'
   },
   {
-    icon: '...',
-    title: '持续添加中',
+    icon: '🏛',
+    title: '全景故宫',
     description: '',
-    url: '#',
-    action: '无'
+    url: 'https://pano.dpm.org.cn/',
+    action: '前往'
   },
   {
     icon: '....',
@@ -86,9 +86,9 @@ function normalizeUrl(url) {
 function renderCardList(list, container, template) {
   if (!container || !template) return
 
-  container.innerHTML = ''
+  container。innerHTML = ''
 
-  list.forEach((card) => {
+  list。forEach((card) => {
     const fragment = template.content.cloneNode(true)
     const cardNode = fragment.querySelector('.nav-card')
     const icon = fragment.querySelector('.nav-card__icon')
