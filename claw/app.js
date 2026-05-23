@@ -58,7 +58,7 @@ const toolCards = [
     title: '全景故宫',
     description: '',
     url: 'https://pano.dpm.org.cn/',
-    action: '前往'
+    action: '点击游览'
   },
   {
     icon: '....',
@@ -86,9 +86,9 @@ function normalizeUrl(url) {
 function renderCardList(list, container, template) {
   if (!container || !template) return
 
-  container。innerHTML = ''
+  container.innerHTML = ''
 
-  list。forEach((card) => {
+  list.forEach((card) => {
     const fragment = template.content.cloneNode(true)
     const cardNode = fragment.querySelector('.nav-card')
     const icon = fragment.querySelector('.nav-card__icon')
