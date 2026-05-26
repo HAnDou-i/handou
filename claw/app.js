@@ -2,70 +2,70 @@ const navCards = [
   {
     icon: '🛒',
     title: '便携版文件',
-    description: '解压即可运行无套路',
+    description: '解压即可运行，适合想快速上手的人。',
     actions: [
-      { text: '淘宝\n购买', url: 'https://e.tb.cn/h.RdpvxZYYYgRqsIR?tk=ivhv5uUsWwc' },
-      { text: '博主\n微信', url: 'https://www.kdocs.cn/l/cpFqiPsjvIFS' }, 
+      { text: '淘宝购买', url: 'https://e.tb.cn/h.RdpvxZYYYgRqsIR?tk=ivhv5uUsWwc' },
+      { text: '博主微信', url: 'https://www.kdocs.cn/l/cpFqiPsjvIFS' },
     ]
   },
   {
     icon: '📖',
     title: '安装说明',
-    description: '便携版文件一些说明',
+    description: '查看便携版文件说明和使用步骤。',
     url: 'https://www.kdocs.cn/l/coFEdkLtwPSX',
-    action: '查看\n说明'
+    action: '查看说明'
   },
   {
-    icon: '🛠',
-    title: 'skill安装方法',
-    description: 'openclaw技能安装方法',
+    icon: '🛠️',
+    title: 'Skill 安装方法',
+    description: '查看 OpenClaw 技能的安装入口与说明。',
     url: 'https://www.clawhub.com',
-    action: '去看看'
+    action: '前往查看'
   },
 ]
 
 const toolCards = [
   {
     icon: '🖼️',
-    title: '免费4K壁纸',
-    description: '',
+    title: '免费 4K 壁纸',
+    description: '高清桌面壁纸资源。',
     url: 'https://haowallpaper.com/',
     action: '打开'
   },
   {
     icon: '📝',
-    title: '完全免费的中文AI提示词',
-    description: '',
+    title: '中文 AI 提示词',
+    description: '免费中文提示词资源整理。',
     url: 'https://prompt123.cn/',
     action: '查看'
   },
   {
     icon: '🎵',
-    title: '网易云音乐批量下载器',
-    description: '',
+    title: '网易云批量下载器',
+    description: '批量下载相关工具。',
     url: 'https://mscdownload.pages.dev/',
     action: '前往'
   },
   {
     icon: '🎶',
     title: '抖音直播数据',
-    description: '',
+    description: '直播相关数据查询。',
     url: 'https://douyin.phpnbw.com/',
     action: '查询'
   },
   {
-    icon: '🏛',
+    icon: '🏛️',
     title: '全景故宫',
-    description: '',
+    description: '在线沉浸式游览。',
     url: 'https://pano.dpm.org.cn/',
-    action: '点击游览'
+    action: '游览'
   },
   {
-    icon: '....',
+    icon: '✨',
     title: '持续添加中',
-    description: '',
+    description: '后续会继续补充更多工具入口。',
     url: '#',
-    action: '无'
+    action: '敬请期待'
   }
 ]
 
@@ -75,9 +75,12 @@ const navCardTemplate = document.getElementById('navCardTemplate')
 const toolCardTemplate = document.getElementById('toolCardTemplate')
 const clockTime = document.getElementById('clockTime')
 const clockDate = document.getElementById('clockDate')
+const hourNode = clockTime?.querySelector('.time-num:nth-of-type(1)')
+const minuteNode = clockTime?.querySelector('.time-num:nth-of-type(2)')
+const secondNode = clockTime?.querySelector('.seconds-part')
 
 function normalizeUrl(url) {
-  if (!url) return '#'
+  if (!url || url === '#') return '#'
   if (/^(https?:\/\/|\.\/|\.\.\/|\/)/i.test(url)) return url
   if (/^[\w-]+\.html?(#.*)?$/i.test(url)) return `./${url}`
   return `https://${url}`
@@ -100,6 +103,10 @@ function renderCardList(list, container, template) {
 
     if (cardNode.tagName === 'A') {
       cardNode.href = url
+      if (url === '#') {
+        cardNode.removeAttribute('target')
+        cardNode.setAttribute('aria-disabled', 'true')
+      }
     }
 
     icon.textContent = card.icon || '✨'
@@ -128,6 +135,12 @@ function renderCardList(list, container, template) {
         actionLink.rel = 'noopener noreferrer'
         actionLink.href = normalizeUrl(item.url)
         actionLink.textContent = item.text || '立即前往'
+
+        if (actionLink.href.endsWith('#')) {
+          actionLink.removeAttribute('target')
+          actionLink.setAttribute('aria-disabled', 'true')
+        }
+
         actions.appendChild(actionLink)
       })
     } else if (action) {
@@ -143,8 +156,13 @@ function updateClock() {
   const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六']
   const pad = (value) => String(value).padStart(2, '0')
 
-  clockTime.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`
-  clockDate.textContent = `${now.getFullYear()}年${pad(now.getMonth() + 1)}月${pad(now.getDate())}日 ${weekdays[now.getDay()]}`
+  if (hourNode) hourNode.textContent = pad(now.getHours())
+  if (minuteNode) minuteNode.textContent = pad(now.getMinutes())
+  if (secondNode) secondNode.textContent = pad(now.getSeconds())
+
+  if (clockDate) {
+    clockDate.textContent = `${now.getFullYear()}年${pad(now.getMonth() + 1)}月${pad(now.getDate())}日 ${weekdays[now.getDay()]}`
+  }
 }
 
 renderCardList(navCards, navGrid, navCardTemplate)

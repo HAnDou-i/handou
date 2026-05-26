@@ -4,15 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI自习室</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=3" />
 </head>
 <body>
-  <div class="page-bg"></div>
+  <div class="page-bg" aria-hidden="true"></div>
 
   <main class="layout">
-    <section class="top-row">
-      <section class="time-section">
-        <div id="clockTime" class="clock-panel__time">00:00:00</div>
+    <section class="hero-panel glass-panel">
+      <div class="hero-copy">
+        <span class="eyebrow">U-CLAW WORKSPACE</span>
+        <h1>AI 自习室</h1>
+        <p>一个基于 AI 的自习室，提供智能导航、工具推荐和学习资源。</p>
+      </div>
+
+      <section class="time-section" aria-label="当前时间">
+        <div id="clockTime" class="clock-panel__time" role="timer" aria-live="polite">
+          <span class="time-num">00</span>
+          <span class="colon">:</span>
+          <span class="time-num">00</span>
+          <span class="colon seconds-colon">:</span>
+          <span class="time-num seconds-part">00</span>
+        </div>
         <div id="clockDate" class="clock-panel__date">0000年00月00日 星期一</div>
       </section>
     </section>
@@ -20,20 +35,21 @@
     <section class="nav-section glass-panel">
       <div class="section-head">
         <div>
+          <span class="section-kicker">Primary</span>
           <h2>快速导航</h2>
+          <p></p>
         </div>
       </div>
 
       <div id="navGrid" class="nav-grid"></div>
     </section>
 
-    <div class="section-divider" aria-hidden="true"></div>
-
     <section class="tools-section glass-panel">
       <div class="section-head section-head--tools">
         <div>
+          <span class="section-kicker">Utility</span>
           <h2>实用小工具</h2>
-          <p>以下工具分享来自第三方链接，与本站无关。</p>
+          <p>以下链接来自第三方站点，仅作导航整理，与本站无直接关联。</p>
         </div>
       </div>
 
@@ -42,7 +58,7 @@
   </main>
 
   <template id="navCardTemplate">
-    <div class="nav-card">
+    <div class="nav-card nav-card--primary">
       <div class="nav-card__icon"></div>
       <div class="nav-card__content">
         <h3 class="nav-card__title"></h3>
