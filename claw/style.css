@@ -1,4 +1,4 @@
-/* style.css v5 - clock refined 2026-05-30 */
+/* style.css v6 - clock width stabilized 2026-05-30 */
 :root {
   --bg-1: #9eeaf0;
   --bg-2: #cbd7e8;
@@ -238,10 +238,18 @@ body::before {
 }
 
 .clock-panel__time .time-num {
+  width: 2.08ch;
+  min-width: 2.08ch;
+  text-align: center;
   font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-kerning: none;
 }
 
 .clock-panel__time .colon {
+  width: 0.52ch;
+  min-width: 0.52ch;
+  text-align: center;
   font-size: clamp(4.3rem, 5.95vw, 5.62rem);
   margin: 0 0.065em;
   transform: translateY(-0.045em);
@@ -253,6 +261,8 @@ body::before {
 }
 
 .clock-panel__time .seconds-part {
+  width: 2.08ch;
+  min-width: 2.08ch;
   letter-spacing: -0.015em;
 }
 
@@ -541,7 +551,13 @@ body::before {
     font-size: clamp(3.08rem, 10.2vw, 4.18rem);
     letter-spacing: -0.018em;
   }
+  .clock-panel__time .time-num {
+    width: 2.08ch;
+    min-width: 2.08ch;
+  }
   .clock-panel__time .colon {
+    width: 0.52ch;
+    min-width: 0.52ch;
     font-size: clamp(3.2rem, 10.6vw, 4.32rem);
     margin: 0 0.045em;
     transform: translateY(-0.04em);
