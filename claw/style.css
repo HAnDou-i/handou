@@ -1,4 +1,4 @@
-﻿/* style.css v3 - dreamy ribbon 2026-05-26 21:02 */
+/* style.css v5 - clock refined 2026-05-30 */
 :root {
   --bg-1: #9eeaf0;
   --bg-2: #cbd7e8;
@@ -24,12 +24,9 @@
   --content-width: 1180px;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html,
-body {
+html, body {
   margin: 0;
   min-height: 100%;
 }
@@ -40,44 +37,28 @@ body {
   background:
     radial-gradient(circle at 0% 8%, rgba(146, 236, 235, 0.9), transparent 26%),
     radial-gradient(circle at 38% 100%, rgba(246, 191, 221, 0.7), transparent 28%),
-    radial-gradient(circle at 82% 18%, rgba(247, 201, 231, 0.72), transparent 24%),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.12), transparent 26%, transparent 74%, rgba(255, 255, 255, 0.08)),
     linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 28%, var(--bg-3) 68%, var(--bg-4) 100%);
   overflow-x: hidden;
 }
 
-body::before,
-body::after {
+/* Grid overlay - simplified */
+body::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-}
-
-body::before {
   background:
-    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.18) 32%, transparent 52%),
     linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
     linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 180% 180%, 42px 42px, 42px 42px;
+  background-size: 42px 42px;
   mask-image: linear-gradient(180deg, rgba(255, 255, 255, 0.42), transparent 82%);
-}
-
-body::after {
-  background:
-    radial-gradient(circle at 16% 24%, rgba(255, 255, 255, 0.42), transparent 18%),
-    radial-gradient(circle at 76% 72%, rgba(255, 255, 255, 0.24), transparent 18%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0));
-  filter: blur(2px);
 }
 
 .page-bg {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background:
-    radial-gradient(circle at center, rgba(255, 255, 255, 0.18), transparent 34%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 18%);
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.18), transparent 34%);
 }
 
 .layout {
@@ -90,8 +71,8 @@ body::after {
 
 .glass-panel,
 .nav-card {
-  backdrop-filter: blur(24px) saturate(135%);
-  -webkit-backdrop-filter: blur(24px) saturate(135%);
+  backdrop-filter: blur(12px) saturate(135%);
+  -webkit-backdrop-filter: blur(12px) saturate(135%);
 }
 
 .glass-panel {
@@ -107,12 +88,11 @@ body::after {
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.28), transparent 32%, transparent 72%, rgba(255, 255, 255, 0.1)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 24%);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.28), transparent 32%);
   pointer-events: none;
 }
 
+/* ===== Hero ===== */
 .hero-panel {
   display: grid;
   grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
@@ -161,6 +141,7 @@ body::after {
   line-height: 1.8;
 }
 
+/* ===== Clock ===== */
 .time-section {
   position: relative;
   display: flex;
@@ -169,16 +150,30 @@ body::after {
   min-height: 286px;
   padding: 34px 32px 30px;
   border-radius: 26px;
-  background: linear-gradient(180deg, rgba(255, 252, 255, 0.42), rgba(247, 235, 245, 0.28));
-  border: 1px solid rgba(255, 255, 255, 0.44);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48);
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.86), transparent 34%),
+    radial-gradient(circle at 86% 88%, rgba(255, 234, 220, 0.18), transparent 30%),
+    linear-gradient(180deg, rgba(255, 252, 255, 0.88), rgba(244, 235, 244, 0.68));
+  border: 1px solid rgba(255, 255, 255, 0.84);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 24px 56px rgba(181, 147, 190, 0.24),
+    0 10px 24px rgba(255, 255, 255, 0.2);
   text-align: center;
   overflow: hidden;
+  isolation: isolate;
 }
 
-/* ===== Dreamy Ribbon Clock ===== */
+.time-section::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.05));
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  pointer-events: none;
+}
 
-/* Breathing border glow on the clock container */
 .time-section::after {
   content: "";
   position: absolute;
@@ -186,14 +181,11 @@ body::after {
   border-radius: 28px;
   background: linear-gradient(
     135deg,
-    rgba(210, 195, 238, 0.20),
-    rgba(188, 210, 240, 0.16),
-    rgba(198, 218, 232, 0.14),
-    rgba(218, 200, 236, 0.18),
-    rgba(195, 212, 238, 0.16)
+    rgba(255, 234, 216, 0.76),
+    rgba(244, 214, 232, 0.5),
+    rgba(220, 234, 248, 0.56),
+    rgba(255, 239, 210, 0.68)
   );
-  background-size: 300% 300%;
-  animation: borderGlow 8s ease-in-out infinite;
   z-index: -1;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
@@ -203,45 +195,7 @@ body::after {
   pointer-events: none;
 }
 
-/* Floating soft milk orb inside clock */
-.time-section::before {
-  content: "";
-  position: absolute;
-  width: 300px;
-  height: 240px;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(200, 188, 238, 0.14),
-    rgba(180, 210, 238, 0.08),
-    transparent 65%
-  );
-  top: 3%;
-  left: 50%;
-  transform: translateX(-50%);
-  animation: floatOrb 9s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 0;
-  filter: blur(3px);
-}
-
-@keyframes floatOrb {
-  0%, 100% {
-    transform: translateX(-50%) translateY(0) scale(1);
-    opacity: 0.5;
-  }
-  50% {
-    transform: translateX(-50%) translateY(-12px) scale(1.1);
-    opacity: 0.75;
-  }
-}
-
-@keyframes borderGlow {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
- .clock-panel__time {
+.clock-panel__time {
   display: flex;
   align-items: baseline;
   justify-content: center;
@@ -250,15 +204,8 @@ body::after {
   margin: 0;
   padding: 0 18px 8px;
   white-space: nowrap;
-  animation: wholeClockShift 8.8s ease-in-out infinite;
-  will-change: filter, opacity;
   position: relative;
   z-index: 1;
-}
-
-/* Colon gets staggered animation for wave feel */
-.clock-panel__time .colon {
-  animation-delay: 0.3s;
 }
 
 .clock-panel__time .time-num,
@@ -266,46 +213,28 @@ body::after {
   display: inline-block;
   font-family: "Outfit", "Inter", "Segoe UI", "Arial", sans-serif;
   font-size: clamp(4.08rem, 5.72vw, 5.35rem);
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.02em;
-  color: rgba(130, 125, 160, 0.85);
-  background: none;
-  -webkit-text-fill-color: unset;
-  text-shadow:
-    0 0 20px rgba(185, 175, 225, 0.35),
-    0 0 45px rgba(175, 195, 230, 0.22),
-    0 0 80px rgba(195, 185, 228, 0.12);
-  animation: ribbonFlow 8s ease-in-out infinite, softBreathe 5.5s ease-in-out infinite;
+  letter-spacing: -0.03em;
+  background: linear-gradient(
+    120deg,
+    #f7cfae 0%,
+    #efb7d6 22%,
+    #bcd8fb 48%,
+    #f4d79b 72%,
+    #d8c8f7 88%,
+    #f7cfae 100%
+  );
+  background-size: 260% 260%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: creamyFlow 5.8s cubic-bezier(0.37, 0, 0.22, 1) infinite;
+  filter:
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.55))
+    drop-shadow(0 0 6px rgba(255, 234, 220, 0.28))
+    drop-shadow(0 0 14px rgba(218, 206, 255, 0.14));
   position: relative;
-}
-
-/* Floating color wash behind each digit — the "ribbon" */
-.clock-panel__time .time-num::before,
-.clock-panel__time .colon::before {
-  content: "";
-  position: absolute;
-  inset: -50% -30%;
-  border-radius: 50%;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(185, 175, 225, 0.28),
-    rgba(175, 200, 235, 0.15),
-    transparent 65%
-  );
-  animation: ribbonWash 7s ease-in-out infinite;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.clock-panel__time .colon::before {
-  animation-delay: -2.5s;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(195, 185, 230, 0.25),
-    rgba(180, 210, 232, 0.12),
-    transparent 65%
-  );
 }
 
 .clock-panel__time .time-num {
@@ -330,108 +259,51 @@ body::after {
 .clock-panel__date {
   width: 100%;
   margin: 18px 0 0;
-  color: var(--text-soft);
+  color: rgba(106, 92, 92, 0.9);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
   font-size: 1rem;
   font-weight: 600;
   line-height: 1.65;
   text-align: center;
-  animation: datePulse 6s ease-in-out infinite;
+  position: relative;
+  z-index: 1;
 }
 
-@keyframes datePulse {
-  0%, 100% { opacity: 0.65; }
-  50% { opacity: 0.95; }
-}
-
-@keyframes ribbonFlow {
+@keyframes creamyFlow {
   0% {
-    text-shadow:
-      0 0 20px rgba(185, 170, 228, 0.38),
-      0 0 50px rgba(170, 195, 235, 0.24),
-      0 0 90px rgba(195, 180, 225, 0.14);
-  }
-  25% {
-    text-shadow:
-      0 0 24px rgba(170, 200, 238, 0.42),
-      0 0 55px rgba(195, 180, 230, 0.26),
-      0 0 95px rgba(180, 210, 235, 0.15);
+    background-position: 0% 50%;
+    transform: none;
+    filter:
+      drop-shadow(0 1px 0 rgba(255, 255, 255, 0.52))
+      drop-shadow(0 0 5px rgba(255, 234, 220, 0.2))
+      drop-shadow(0 0 12px rgba(218, 206, 255, 0.1));
   }
   50% {
-    text-shadow:
-      0 0 22px rgba(198, 182, 232, 0.40),
-      0 0 52px rgba(180, 195, 235, 0.25),
-      0 0 88px rgba(175, 205, 228, 0.14);
-  }
-  75% {
-    text-shadow:
-      0 0 26px rgba(178, 195, 235, 0.40),
-      0 0 54px rgba(190, 178, 228, 0.24),
-      0 0 92px rgba(185, 208, 232, 0.13);
+    background-position: 100% 50%;
+    transform: none;
+    filter:
+      drop-shadow(0 1px 0 rgba(255, 255, 255, 0.6))
+      drop-shadow(0 0 8px rgba(255, 236, 224, 0.3))
+      drop-shadow(0 0 18px rgba(218, 206, 255, 0.14));
   }
   100% {
-    text-shadow:
-      0 0 20px rgba(185, 170, 228, 0.38),
-      0 0 50px rgba(170, 195, 235, 0.24),
-      0 0 90px rgba(195, 180, 225, 0.14);
+    background-position: 0% 50%;
+    transform: none;
+    filter:
+      drop-shadow(0 1px 0 rgba(255, 255, 255, 0.52))
+      drop-shadow(0 0 5px rgba(255, 234, 220, 0.2))
+      drop-shadow(0 0 12px rgba(218, 206, 255, 0.1));
   }
 }
 
-@keyframes ribbonWash {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.55;
-  }
-  20% {
-    transform: translate(12px, -8px) scale(1.2);
-    opacity: 0.85;
-  }
-  40% {
-    transform: translate(-6px, -16px) scale(1.08);
-    opacity: 0.65;
-  }
-  60% {
-    transform: translate(-14px, -6px) scale(1.18);
-    opacity: 0.8;
-  }
-  80% {
-    transform: translate(6px, -10px) scale(1.05);
-    opacity: 0.7;
-  }
-}
-
-@keyframes softBreathe {
-  0%, 100% {
-    filter: saturate(0.85) brightness(0.97);
-    opacity: 0.9;
-  }
-  50% {
-    filter: saturate(1.1) brightness(1.05);
-    opacity: 1;
-  }
-}
-
-@keyframes wholeClockShift {
-  0%, 100% {
-    filter: saturate(0.88) brightness(1.0) hue-rotate(-5deg);
-    opacity: 0.92;
-  }
-  50% {
-    filter: saturate(1.02) brightness(1.03) hue-rotate(5deg);
-    opacity: 1;
-  }
-}
+/* ===== Sections ===== */
 .nav-section,
 .tools-section {
   padding: 28px;
 }
 
-.nav-section {
-  margin-top: 10px;
-}
-
-.tools-section {
-  margin-top: 18px;
-}
+.nav-section { margin-top: 10px; }
+.tools-section { margin-top: 18px; }
 
 .section-head {
   display: flex;
@@ -470,6 +342,7 @@ body::after {
   gap: 14px;
 }
 
+/* ===== Cards ===== */
 .nav-card {
   position: relative;
   overflow: hidden;
@@ -491,7 +364,7 @@ body::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 38%, rgba(255, 255, 255, 0.08));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 38%);
   pointer-events: none;
 }
 
@@ -515,9 +388,7 @@ body::after {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45);
 }
 
-.nav-card__content {
-  min-width: 0;
-}
+.nav-card__content { min-width: 0; }
 
 .nav-card__title {
   margin: 0;
@@ -602,15 +473,25 @@ body::after {
   font-size: 0.8rem;
 }
 
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== Responsive ===== */
 @media (max-width: 1100px) {
   .hero-panel {
     grid-template-columns: 1fr;
   }
-
   .time-section {
     min-height: 220px;
   }
-
   .nav-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -621,17 +502,14 @@ body::after {
     width: min(100% - 22px, 100%);
     padding: 18px 0 34px;
   }
-
   .hero-panel,
   .nav-section,
   .tools-section {
     padding: 22px;
   }
-
   .hero-copy h1 {
     font-size: clamp(2.5rem, 8vw, 3.8rem);
   }
-
   .nav-grid,
   .tools-grid {
     grid-template-columns: 1fr;
@@ -643,49 +521,40 @@ body::after {
     width: min(100% - 16px, 100%);
     padding: 16px 0 28px;
   }
-
   .glass-panel {
     border-radius: 24px;
   }
-
   .hero-panel,
   .nav-section,
   .tools-section {
     padding: 18px;
   }
-
   .time-section {
     min-height: 200px;
     padding: 24px 18px;
   }
-
   .clock-panel__time {
     padding: 0 10px 4px;
   }
-
   .clock-panel__time .time-num,
   .clock-panel__time .colon {
     font-size: clamp(3.08rem, 10.2vw, 4.18rem);
     letter-spacing: -0.018em;
   }
-
   .clock-panel__time .colon {
     font-size: clamp(3.2rem, 10.6vw, 4.32rem);
     margin: 0 0.045em;
     transform: translateY(-0.04em);
   }
-
   .clock-panel__date {
     margin-top: 14px;
     font-size: 0.94rem;
   }
-
   .nav-card,
   .tool-link-card {
     grid-template-columns: 1fr;
     gap: 12px;
   }
-
   .nav-card__icon,
   .tools-grid .nav-card__icon {
     width: 48px;
@@ -693,37 +562,18 @@ body::after {
     border-radius: 14px;
     font-size: 20px;
   }
-
   .nav-card__title {
     font-size: 1rem;
   }
-
   .nav-card__description,
   .tools-grid .nav-card__description {
     font-size: 0.86rem;
   }
-
   .nav-grid .nav-card__action,
   .tools-grid .nav-card__action {
     width: 100%;
   }
-
   .nav-card__actions {
     flex-direction: column;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

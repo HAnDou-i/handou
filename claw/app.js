@@ -75,9 +75,10 @@ const navCardTemplate = document.getElementById('navCardTemplate')
 const toolCardTemplate = document.getElementById('toolCardTemplate')
 const clockTime = document.getElementById('clockTime')
 const clockDate = document.getElementById('clockDate')
-const hourNode = clockTime?.querySelector('.time-num:nth-of-type(1)')
-const minuteNode = clockTime?.querySelector('.time-num:nth-of-type(2)')
-const secondNode = clockTime?.querySelector('.seconds-part')
+const timeNums = clockTime?.querySelectorAll('.time-num')
+const hourNode = timeNums?.[0]
+const minuteNode = timeNums?.[1]
+const secondNode = timeNums?.[2]
 
 function normalizeUrl(url) {
   if (!url || url === '#') return '#'
