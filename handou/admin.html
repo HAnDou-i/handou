@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HanDou链接管理后台">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
     <title>HanDou · 链接管理后台</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: #f5f7fa;
+            background: radial-gradient(circle at top left, rgba(183, 244, 243, 0.5), transparent 28%),
+                        radial-gradient(circle at bottom right, rgba(255, 190, 218, 0.5), transparent 30%),
+                        linear-gradient(135deg, #e8f4f8 0%, #fce4f0 50%, #f5f0ff 100%);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
             display: flex;
@@ -22,286 +22,195 @@
             padding: clamp(0.8rem, 3vw, 2rem);
         }
 
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: radial-gradient(circle at top left, rgba(30, 80, 90, 0.4), transparent 28%),
+                            radial-gradient(circle at bottom right, rgba(90, 40, 70, 0.3), transparent 30%),
+                            linear-gradient(135deg, #1a2a3a 0%, #2a1a3a 50%, #1e1530 100%);
+            }
+            .admin-card { background: rgba(20, 30, 50, 0.5); border-color: rgba(255,255,255,0.1); }
+            h1, .form-title, .section-title { color: #d0dce8; }
+            .subtitle { color: #8898a8; border-bottom-color: rgba(255,255,255,0.1); }
+            .input-group label { color: #c8d8ec; }
+            .input-group input, .input-group textarea, .input-group select {
+                background: rgba(30, 45, 70, 0.4); border-color: rgba(255,255,255,0.12); color: #d0dce8;
+            }
+            .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+                border-color: rgba(127, 159, 201, 0.5);
+            }
+            .link-item { background: rgba(30, 45, 70, 0.3); border-color: rgba(255,255,255,0.08); }
+            .link-item:hover { border-color: rgba(255,255,255,0.15); }
+            .link-title { color: #d0dce8; }
+            .link-url { color: #8898a8; }
+            .link-meta span { background: rgba(30, 45, 70, 0.4); border-color: rgba(255,255,255,0.08); color: #8898a8; }
+            .status-badge { background: rgba(30, 45, 70, 0.4); color: #a8c0d8; border-color: rgba(255,255,255,0.1); }
+            .edit-form { background: rgba(30, 45, 70, 0.25); border-color: rgba(255,255,255,0.08); }
+            .empty-state { background: rgba(30, 45, 70, 0.2); color: #8898a8; border-color: rgba(255,255,255,0.08); }
+            .user-info { background: rgba(30, 45, 70, 0.3); }
+            .user-email { color: #a8c0d8; }
+            .footer { color: #8898a8; border-top-color: rgba(255,255,255,0.08); }
+            .footer a { color: #7ca8d0; }
+            .error-message { background: rgba(100, 30, 30, 0.3); color: #f8a0a0; }
+            .protected-badge { background: rgba(100, 80, 20, 0.4); color: #f0d060; border-color: rgba(255,255,255,0.1); }
+            .cat-tag { background: rgba(30, 45, 70, 0.4); color: #a8c0d8; border-color: rgba(255,255,255,0.1); }
+            .cat-dot { border-color: rgba(255,255,255,0.2); }
+            .category-chips { border-color: rgba(255,255,255,0.08); }
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .admin-card {
-            width: 100%;
-            max-width: 900px;
-            background: #ffffff;
+            width: 100%; max-width: 900px;
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-radius: clamp(28px, 5vw, 42px);
             padding: clamp(1.2rem, 4vw, 2.4rem);
-            box-shadow: 0 20px 35px -8px rgba(0,0,0,0.1);
-            border: 1px solid #eaeef3;
+            box-shadow: 0 20px 35px -8px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+            border: 1px solid rgba(255,255,255,0.5);
+            animation: fadeSlideIn 0.4s ease both;
         }
 
-        h1 {
-            color: #1a2b3c;
-            font-size: clamp(1.5rem, 5vw, 2rem);
-            margin-bottom: 0.5rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+        h1 { color: #1a2b3c; font-size: clamp(1.5rem, 5vw, 2rem); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .subtitle { color: #62748c; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px dashed rgba(200,215,229,0.5); }
 
-        .subtitle {
-            color: #62748c;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px dashed #ccd7e5;
-        }
+        .login-form, .admin-panel { display: none; }
+        .login-form.active, .admin-panel.active { display: block; }
 
-        .login-form, .admin-panel {
-            display: none;
-        }
-        .login-form.active, .admin-panel.active {
-            display: block;
-        }
-
-        .input-group {
-            margin-bottom: 1.2rem;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #2d4059;
-            font-weight: 500;
-        }
+        .input-group { margin-bottom: 1.2rem; }
+        .input-group label { display: block; margin-bottom: 0.5rem; color: #2d4059; font-weight: 500; }
         .input-group input, .input-group textarea, .input-group select {
-            width: 100%;
-            padding: 0.8rem 1.2rem;
-            border: 1px solid #dbe0e8;
-            border-radius: 30px;
-            font-size: 1rem;
-            transition: all 0.2s;
+            width: 100%; padding: 0.8rem 1.2rem;
+            border: 1px solid rgba(219,224,232,0.6); border-radius: 30px;
+            font-size: 1rem; transition: all 0.2s;
+            background: rgba(255,255,255,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
         }
         .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
-            outline: none;
-            border-color: #7f9fc9;
-            box-shadow: 0 0 0 3px rgba(127, 159, 201, 0.1);
+            outline: none; border-color: #7f9fc9; box-shadow: 0 0 0 3px rgba(127,159,201,0.1); background: rgba(255,255,255,0.7);
         }
-        .input-group textarea {
-            border-radius: 20px;
-            resize: vertical;
-            min-height: 80px;
-        }
+        .input-group textarea { border-radius: 20px; resize: vertical; min-height: 80px; }
+        .input-row { display: flex; gap: 1rem; }
+        .input-row .input-group { flex: 1; }
 
         button {
-            background: #203d61;
-            color: white;
-            border: none;
-            padding: 0.8rem 1.8rem;
-            border-radius: 30px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-right: 0.8rem;
-            margin-bottom: 0.8rem;
-            border: 1px solid transparent;
+            background: #203d61; color: white; border: none;
+            padding: 0.8rem 1.8rem; border-radius: 30px;
+            font-size: 1rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; margin-right: 0.8rem; margin-bottom: 0.8rem;
         }
-        button:hover {
-            background: #254e7a;
-            transform: translateY(-1px);
-        }
-        button.secondary {
-            background: white;
-            color: #1f3a5c;
-            border: 1px solid #c7d6ea;
-        }
-        button.secondary:hover {
-            background: #f2f6fc;
-            border-color: #9bb2cf;
-        }
-        button.danger {
-            background: #dc3545;
-        }
-        button.danger:hover {
-            background: #c82333;
-        }
-        button.small {
-            padding: 0.4rem 1rem;
-            font-size: 0.9rem;
-        }
+        button:hover { background: #254e7a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(32,61,97,0.25); }
+        button:active { transform: scale(0.97); }
+        button.secondary { background: rgba(255,255,255,0.6); color: #1f3a5c; border: 1px solid rgba(199,214,234,0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        button.secondary:hover { background: rgba(255,255,255,0.8); border-color: #9bb2cf; }
+        button.danger { background: #dc3545; }
+        button.danger:hover { background: #c82333; box-shadow: 0 4px 12px rgba(220,53,69,0.3); }
+        button.small { padding: 0.4rem 1rem; font-size: 0.9rem; }
 
-        .links-list {
-            margin-top: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
+        .links-list { margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem; }
 
         .link-item {
-            background: #f9fbfe;
-            border: 1px solid #e2e8f0;
-            border-radius: 50px;
+            background: rgba(249,251,254,0.5);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(226,232,240,0.6); border-radius: 50px;
             padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: all 0.2s;
+            display: flex; align-items: center; justify-content: space-between;
+            transition: all 0.2s; animation: fadeSlideIn 0.35s ease both;
         }
-        .link-item:hover {
-            border-color: #bcc9dc;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.02);
-        }
+        .link-item:hover { border-color: rgba(188,201,220,0.7); box-shadow: 0 4px 12px rgba(0,0,0,0.04); transform: translateY(-1px); }
 
-        .link-info {
-            flex: 1;
-            min-width: 0;
-        }
-        .link-title {
-            font-weight: 600;
-            color: #1a2b3f;
-            font-size: 1.1rem;
-            margin-bottom: 0.3rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .link-url {
-            color: #62748c;
-            font-size: 0.9rem;
-            word-break: break-all;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        .link-meta {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.85rem;
-            color: #7f8fa4;
-            flex-wrap: wrap;
-            margin-top: 0.3rem;
-        }
-        .link-meta span {
-            background: #eef3f9;
-            padding: 0.2rem 0.8rem;
-            border-radius: 20px;
-            border: 1px solid #c8d7ec;
-        }
+        .link-info { flex: 1; min-width: 0; }
+        .link-title { font-weight: 600; color: #1a2b3f; font-size: 1.1rem; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .link-url { color: #62748c; font-size: 0.9rem; word-break: break-all; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .link-meta { display: flex; gap: 0.5rem; font-size: 0.85rem; color: #7f8fa4; flex-wrap: wrap; margin-top: 0.3rem; }
+        .link-meta span { background: rgba(238,243,249,0.5); padding: 0.2rem 0.6rem; border-radius: 20px; border: 1px solid rgba(200,215,236,0.5); }
 
-        .link-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-left: 1rem;
+        .cat-tag {
+            background: rgba(183, 244, 243, 0.4); color: #1a6b6b;
+            padding: 0.15rem 0.5rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+            border: 1px solid rgba(183,244,243,0.5); display: inline-flex; align-items: center; gap: 4px;
         }
-        .link-actions button {
-            padding: 0.5rem 1rem;
-            margin: 0;
-            font-size: 0.9rem;
-        }
+        .cat-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+        .link-actions { display: flex; gap: 0.5rem; margin-left: 1rem; }
+        .link-actions button { padding: 0.5rem 1rem; margin: 0; font-size: 0.9rem; }
 
         .edit-form {
-            background: #f2f4f8;
-            border-radius: 30px;
-            padding: 1.8rem;
-            margin: 1.5rem 0;
-            border: 1px solid #d7e2f0;
+            background: rgba(242,244,248,0.45);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-radius: 30px; padding: 1.8rem; margin: 1.5rem 0;
+            border: 1px solid rgba(215,226,240,0.5); animation: fadeSlideIn 0.3s ease both;
         }
-        .form-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #1a2b3f;
-            margin-bottom: 1.5rem;
+        .form-title { font-size: 1.3rem; font-weight: 600; color: #1a2b3f; margin-bottom: 1.5rem; }
+
+        .toolbar { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+
+        .status-badge { background: rgba(232,240,254,0.6); color: #203d61; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.9rem; border: 1px solid rgba(176,194,217,0.5); }
+
+        .loading { text-align: center; padding: 3rem; color: #62748c; }
+        .empty-state { text-align: center; padding: 3rem; color: #62748c; background: rgba(249,251,254,0.4); border-radius: 30px; border: 2px dashed rgba(204,215,229,0.5); }
+
+        .footer { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(216,226,239,0.5); text-align: center; color: #62748c; font-size: 0.9rem; }
+        .footer a { color: #1f4172; text-decoration: none; border-bottom: 1px dotted; }
+
+        .user-info { display: flex; align-items: center; gap: 15px; padding: 0.8rem 1.5rem; background: rgba(240,245,252,0.5); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-radius: 40px; margin-bottom: 1.5rem; flex-wrap: wrap; border: 1px solid rgba(255,255,255,0.4); }
+        .user-email { color: #203d61; font-weight: 500; }
+
+        .error-message { color: #dc3545; font-size: 0.9rem; margin: 0.5rem 0 1rem; padding: 0.5rem 1rem; background: rgba(255,227,227,0.5); border-radius: 20px; display: none; }
+        .protected-badge { background: rgba(255,217,102,0.6); color: #856404; font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 600; }
+        .form-footer { margin-top: 1rem; color: #62748c; font-size: 0.9rem; }
+        .form-footer a { color: #203d61; text-decoration: none; border-bottom: 1px dotted; }
+
+        .section-title {
+            font-size: 1.1rem; font-weight: 600; color: #1a2b3f;
+            margin: 2rem 0 1rem; padding-bottom: 0.5rem;
+            border-bottom: 1px dashed rgba(200,215,229,0.5);
+            display: flex; align-items: center; gap: 8px;
         }
 
-        .toolbar {
-            display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-            margin-bottom: 1.5rem;
+        /* 分类芯片 */
+        .category-chips {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            padding: 1rem; margin-bottom: 1rem;
+            border: 1px dashed rgba(200,215,229,0.5); border-radius: 20px;
+            background: rgba(249,251,254,0.3);
         }
+        .cat-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;
+            border: 1px solid; cursor: default; transition: 0.2s;
+        }
+        .cat-chip .cat-dot-sm { width: 8px; height: 8px; border-radius: 50%; }
+        .cat-chip .cat-count { font-size: 0.75rem; opacity: 0.7; }
+        .cat-chip .cat-delete {
+            margin-left: 4px; cursor: pointer; opacity: 0.5;
+            font-size: 0.8rem; line-height: 1; transition: 0.2s;
+        }
+        .cat-chip .cat-delete:hover { opacity: 1; color: #dc3545; }
 
-        .status-badge {
-            background: #e8f0fe;
-            color: #203d61;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            border: 1px solid #b0c2d9;
+        /* 新增分类输入 */
+        .add-cat-wrap {
+            display: flex; gap: 8px; align-items: center; margin-top: 0.5rem;
         }
+        .add-cat-wrap input {
+            padding: 0.4rem 1rem; border-radius: 20px; border: 1px solid rgba(219,224,232,0.6);
+            font-size: 0.85rem; background: rgba(255,255,255,0.5); flex: 1; min-width: 120px;
+        }
+        .add-cat-wrap input:focus { outline: none; border-color: #7f9fc9; }
+        .add-cat-wrap button { padding: 0.4rem 1rem; font-size: 0.85rem; margin: 0; }
 
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: #62748c;
+        /* 分类筛选 */
+        .filter-bar {
+            display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 1rem;
         }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #62748c;
-            background: #f9fbfe;
-            border-radius: 30px;
-            border: 2px dashed #ccd7e5;
+        .filter-chip {
+            padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 500;
+            border: 1px solid rgba(199,214,234,0.6); background: rgba(255,255,255,0.5);
+            cursor: pointer; transition: 0.2s;
         }
-
-        .footer {
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid #d8e2ef;
-            text-align: center;
-            color: #62748c;
-            font-size: 0.9rem;
-        }
-        .footer a {
-            color: #1f4172;
-            text-decoration: none;
-            border-bottom: 1px dotted;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 0.8rem 1.5rem;
-            background: #f0f5fc;
-            border-radius: 40px;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-        .user-email {
-            color: #203d61;
-            font-weight: 500;
-        }
-        .error-message {
-            color: #dc3545;
-            font-size: 0.9rem;
-            margin: 0.5rem 0 1rem;
-            padding: 0.5rem 1rem;
-            background: #ffe3e3;
-            border-radius: 20px;
-            display: none;
-        }
-        .success-message {
-            color: #0a5c0a;
-            font-size: 0.9rem;
-            margin: 0.5rem 0 1rem;
-            padding: 0.5rem 1rem;
-            background: #e3f7e3;
-            border-radius: 20px;
-            display: none;
-        }
-        .protected-badge {
-            background: #ffd966;
-            color: #856404;
-            font-size: 0.75rem;
-            padding: 0.2rem 0.6rem;
-            border-radius: 20px;
-            font-weight: 600;
-        }
-        .form-footer {
-            margin-top: 1rem;
-            color: #62748c;
-            font-size: 0.9rem;
-        }
-        .form-footer a {
-            color: #203d61;
-            text-decoration: none;
-            border-bottom: 1px dotted;
-        }
+        .filter-chip:hover { background: rgba(255,255,255,0.8); }
+        .filter-chip.active { background: #203d61; color: white; border-color: #203d61; }
     </style>
 </head>
 <body>
@@ -312,433 +221,478 @@
     </h1>
     <div class="subtitle"></div>
 
-    <!-- 登录表单 -->
     <div id="loginForm" class="login-form active">
         <div class="input-group">
             <label>📧 管理员账号</label>
-            <input type="email" id="adminEmail" placeholder="">
+            <input type="email" id="adminEmail" placeholder="请输入邮箱">
         </div>
         <div class="input-group">
             <label>🔐 密码</label>
-            <input type="password" id="adminPassword" placeholder="" autocomplete="off">
+            <input type="password" id="adminPassword" placeholder="请输入密码" autocomplete="off">
         </div>
         <button onclick="window.handleLogin()">登录后台</button>
         <button class="secondary" onclick="window.location.href='index.html'">返回首页</button>
-        
         <div id="loginError" class="error-message"></div>
-        
         <div class="form-footer"></div>
     </div>
 
-    <!-- 管理面板 -->
     <div id="adminPanel" class="admin-panel">
         <div id="userInfo" class="user-info" style="display: none;">
             <span>👤 已登录：<span id="userEmail" class="user-email"></span></span>
             <button class="secondary small" onclick="window.logout()" style="margin-left: auto;">退出登录</button>
         </div>
-        
+
         <div class="toolbar">
             <button onclick="window.showAddForm()">➕ 新增链接</button>
             <button class="secondary" onclick="window.refreshList()">🔄 刷新列表</button>
         </div>
 
-        <!-- 新增/编辑表单 -->
+        <!-- 分类管理 -->
+        <div class="section-title">📂 分类管理</div>
+        <div class="category-chips" id="categoryChips">
+            <span style="color:#7f8fa4;font-size:0.85rem;">加载中...</span>
+        </div>
+        <div class="add-cat-wrap">
+            <input type="text" id="newCatInput" placeholder="输入新分类名称" maxlength="20">
+            <button onclick="window.addCategory()" style="background:#2e7d5b;">添加分类</button>
+        </div>
+
+        <!-- 编辑表单 -->
         <div id="editForm" class="edit-form" style="display: none;">
             <div class="form-title" id="formTitle">➕ 新增链接</div>
             <input type="hidden" id="editId" value="">
-            
-            <div class="input-group">
-                <label>标题 <span style="color: #dc3545;">*</span></label>
-                <input type="text" id="editTitle" placeholder="例如：飞牛安装软件" maxlength="50">
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label>标题 <span style="color: #dc3545;">*</span></label>
+                    <input type="text" id="editTitle" placeholder="例如：飞牛安装软件" maxlength="50">
+                </div>
+                <div class="input-group">
+                    <label>所属分类</label>
+                    <select id="editCategory"></select>
+                </div>
             </div>
-            
+
             <div class="input-group">
                 <label>URL地址 <span style="color: #dc3545;">*</span></label>
                 <input type="url" id="editUrl" placeholder="https://...">
             </div>
-            
-            <div class="input-group">
-                <label>访问密码（可选）</label>
-                <input type="text" id="editPassword" placeholder="留空表示无需密码" maxlength="50">
-                <p style="font-size: 0.8rem; color: #7f8fa4; margin-top: 0.3rem;">设置密码后，访问该链接需要输入密码</p>
+
+            <div class="input-row">
+                <div class="input-group">
+                    <label>访问密码（可选）</label>
+                    <input type="text" id="editPassword" placeholder="留空无需密码" maxlength="50">
+                </div>
+                <div class="input-group">
+                    <label>排序序号</label>
+                    <input type="number" id="editSortOrder" value="1" min="0" max="999">
+                </div>
             </div>
-            
-            <div class="input-group">
-                <label>排序序号（数字越小越靠前）</label>
-                <input type="number" id="editSortOrder" value="1" min="0" max="999">
-            </div>
-            
+
             <div class="input-group">
                 <label>图标SVG（可选）</label>
-                <textarea id="editIcon" placeholder="<svg viewBox=&quot;0 0 24 24&quot;>...</svg>" rows="4"></textarea>
-                <p style="font-size: 0.8rem; color: #7f8fa4; margin-top: 0.3rem;">如果不填，将使用默认箭头图标</p>
+                <textarea id="editIcon" placeholder="<svg viewBox=&quot;0 0 24 24&quot;>...</svg>" rows="3"></textarea>
             </div>
-            
+
             <div>
                 <button onclick="window.saveLink()">💾 保存链接</button>
                 <button class="secondary" onclick="window.hideForm()">取消</button>
             </div>
         </div>
 
-        <!-- 链接列表容器 -->
+        <!-- 分类筛选 -->
+        <div class="filter-bar" id="filterBar" style="display:none;"></div>
+
+        <!-- 链接列表 -->
+        <div class="section-title">🔗 链接列表</div>
         <div id="linksList" class="links-list">
             <div class="loading">⏳ 加载链接列表中...</div>
         </div>
     </div>
 
     <div class="footer">
-        <span> </span>
-        <a href="#" onclick="window.location.reload(); return false;"></a>
+        <a href="index.html">返回首页</a>
     </div>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const SUPABASE_URL = 'https://mzxjyupadsakhsceidvm.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16eGp5dXBhZHNha2hzY2VpZHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDUzNjYsImV4cCI6MjA4NzkyMTM2Nn0.M4sPqp3-oYuw7JlRYmcqnCkLbRPvDYi7O6yMMdPXu88';
-        
-        window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+document.addEventListener('DOMContentLoaded', function() {
+    const SUPABASE_URL = 'https://mzxjyupadsakhsceidvm.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16eGp5dXBhZHNha2hzY2VpZHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDUzNjYsImV4cCI6MjA4NzkyMTM2Nn0.M4sPqp3-oYuw7JlRYmcqnCkLbRPvDYi7O6yMMdPXu88';
+    window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function escapeHtml(text) {
-            if (text === null || text === undefined) return '';
-            const str = String(text);
-            return str
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
+    const MODULE_COLORS = ['#7ecfcf','#f7a8c6','#a8c8f7'];
+    const DEFAULT_CATEGORIES = ['常用', '其他'];
+    let categories = [];
+    let allLinks = [];
+    let currentFilter = '全部';
+
+    function escapeHtml(text) {
+        if (text === null || text === undefined) return '';
+        return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function getColor(i) { return MODULE_COLORS[i % MODULE_COLORS.length]; }
+
+    function showStatus(msg, ok = true) {
+        const el = document.getElementById('connectionStatus');
+        if (el) {
+            el.textContent = msg;
+            el.style.background = ok ? 'rgba(227,247,227,0.6)' : 'rgba(255,227,227,0.6)';
+            el.style.color = ok ? '#0a5c0a' : '#a00';
         }
+    }
 
-        function showStatus(message, isSuccess = true) {
-            const statusEl = document.getElementById('connectionStatus');
-            if (statusEl) {
-                statusEl.textContent = message;
-                statusEl.style.background = isSuccess ? '#e3f7e3' : '#ffe3e3';
-                statusEl.style.color = isSuccess ? '#0a5c0a' : '#a00';
-                statusEl.style.borderColor = isSuccess ? '#8bc34a' : '#ff9f9f';
-            }
-        }
-
-        window.handleLogin = async function() {
-            const email = document.getElementById('adminEmail').value.trim();
-            const password = document.getElementById('adminPassword').value;
-            const errorEl = document.getElementById('loginError');
-            
-            errorEl.style.display = 'none';
-            errorEl.textContent = '';
-            
-            if (!email || !password) {
-                errorEl.textContent = '请填写邮箱和密码';
-                errorEl.style.display = 'block';
-                return;
-            }
-            
-            try {
-                const { data, error } = await window.supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
-                
-                if (error) throw error;
-                
-                if (data.session) {
-                    document.getElementById('loginForm').classList.remove('active');
-                    document.getElementById('adminPanel').classList.add('active');
-                    
-                    document.getElementById('userInfo').style.display = 'flex';
-                    document.getElementById('userEmail').textContent = data.user.email;
-                    
-                    showStatus('已登录', true);
-                    loadLinks();
-                }
-            } catch (error) {
-                console.error('登录失败:', error);
-                
-                let errorMessage = '';
-                if (error.message.includes('Invalid login credentials')) {
-                    errorMessage = '账号或密码错误';
-                } else if (error.message.includes('Email not confirmed')) {
-                    errorMessage = '账号错误';
-                } else if (error.message.includes('rate limit')) {
-                    errorMessage = '操作太频繁，请稍后再试';
-                } else {
-                    errorMessage = '登录失败：' + error.message;
-                }
-                
-                errorEl.textContent = errorMessage;
-                errorEl.style.display = 'block';
-            }
-        };
-
-        window.logout = async function() {
-            try {
-                const { error } = await window.supabase.auth.signOut();
-                if (error) throw error;
-                
-                document.getElementById('adminPanel').classList.remove('active');
-                document.getElementById('loginForm').classList.add('active');
-                document.getElementById('userInfo').style.display = 'none';
-                document.getElementById('adminEmail').value = '';
-                document.getElementById('adminPassword').value = '';
-                showStatus('已退出', true);
-            } catch (error) {
-                console.error('退出失败:', error);
-                alert('退出失败：' + error.message);
-            }
-        };
-
-        async function checkSession() {
-            try {
-                const { data: { session }, error } = await window.supabase.auth.getSession();
-                
-                if (error) throw error;
-                
-                if (session) {
-                    document.getElementById('loginForm').classList.remove('active');
-                    document.getElementById('adminPanel').classList.add('active');
-                    document.getElementById('userInfo').style.display = 'flex';
-                    document.getElementById('userEmail').textContent = session.user.email;
-                    showStatus('已登录', true);
-                    loadLinks();
-                } else {
-                    document.getElementById('loginForm').classList.add('active');
-                }
-            } catch (error) {
-                console.error('会话检查失败:', error);
-                document.getElementById('loginForm').classList.add('active');
-            }
-        }
-
-        window.supabase.auth.onAuthStateChange((event, session) => {
-            console.log('Auth状态变化:', event);
-            if (event === 'SIGNED_OUT') {
-                document.getElementById('adminPanel').classList.remove('active');
-                document.getElementById('loginForm').classList.add('active');
-                document.getElementById('userInfo').style.display = 'none';
-            }
-        });
-
-        async function loadLinks() {
-            const container = document.getElementById('linksList');
-            container.innerHTML = '<div class="loading">⏳ 加载链接列表中...</div>';
-
-            try {
-                const { data: links, error } = await window.supabase
-                    .from('links')
-                    .select('*')
-                    .order('sort_order', { ascending: true });
-
-                if (error) throw error;
-
-                if (!links || links.length === 0) {
-                    container.innerHTML = '<div class="empty-state">📭 还没有任何链接，点击上方 "➕ 新增链接" 添加</div>';
+    // ===== 分类管理 =====
+    async function loadCategories() {
+        try {
+            const { data, error } = await window.supabase.from('links').select('category');
+            if (error) {
+                // 如果 category 字段不存在，提示用户
+                if (error.message && error.message.includes('category')) {
+                    showStatus('需要添加 category 字段', false);
+                    document.getElementById('categoryChips').innerHTML =
+                        '<span style="color:#dc3545;font-size:0.85rem;">⚠️ 请先在 Supabase 控制台执行：<code style="background:rgba(0,0,0,0.06);padding:2px 6px;border-radius:4px;">ALTER TABLE links ADD COLUMN IF NOT EXISTS category TEXT DEFAULT \'默认\';</code></span>';
                     return;
                 }
-
-                let html = '';
-                links.forEach(link => {
-                    const safeId = escapeHtml(link.id);
-                    const safeTitle = escapeHtml(link.title || '未命名');
-                    const safeUrl = escapeHtml(link.url || '');
-                    const safeSortOrder = escapeHtml(link.sort_order || 0);
-                    
-                    const hasPassword = link.password ? '🔒' : '🔓';
-                    const passwordText = link.password ? '密码保护' : '公开';
-                    
-                    html += `
-                        <div class="link-item" data-id="${safeId}">
-                            <div class="link-info">
-                                <div class="link-title">
-                                    ${safeTitle}
-                                    ${link.password ? '<span class="protected-badge">🔒 密码保护</span>' : ''}
-                                </div>
-                                <div class="link-url">${safeUrl}</div>
-                                <div class="link-meta">
-                                    <span>排序: ${safeSortOrder}</span>
-                                    <span>${hasPassword} ${passwordText}</span>
-                                    ${link.created_at ? `<span>📅 ${new Date(link.created_at).toLocaleDateString()}</span>` : ''}
-                                </div>
-                            </div>
-                            <div class="link-actions">
-                                <button class="secondary" onclick="window.editLink('${safeId}')">编辑</button>
-                                <button class="danger" onclick="window.deleteLink('${safeId}')">删除</button>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = html;
-                showStatus('连接成功', true);
-            } catch (error) {
-                console.error('加载失败:', error);
-                container.innerHTML = `<div class="empty-state">❌ 加载失败: ${escapeHtml(error.message)}</div>`;
-                showStatus('连接失败', false);
+                throw error;
             }
+            const catSet = new Set();
+            // 先加入预设分类
+            DEFAULT_CATEGORIES.forEach(c => catSet.add(c));
+            // 再从数据库加载（把"默认"映射为"常用"）
+            data.forEach(r => {
+                let cat = r.category || '默认';
+                if (cat === '默认') cat = '常用';
+                catSet.add(cat);
+            });
+            categories = [...catSet].sort((a, b) => {
+                const ai = DEFAULT_CATEGORIES.indexOf(a);
+                const bi = DEFAULT_CATEGORIES.indexOf(b);
+                if (ai !== -1 && bi !== -1) return ai - bi;
+                if (ai !== -1) return -1;
+                if (bi !== -1) return 1;
+                return a.localeCompare(b);
+            });
+            renderCategoryChips();
+            updateCategorySelect();
+            updateFilterBar();
+        } catch (e) {
+            console.error('加载分类失败:', e);
         }
+    }
 
-        window.refreshList = function() {
-            loadLinks();
-        };
-
-        window.showAddForm = function() {
-            document.getElementById('formTitle').innerText = '➕ 新增链接';
-            document.getElementById('editId').value = '';
-            document.getElementById('editTitle').value = '';
-            document.getElementById('editUrl').value = '';
-            document.getElementById('editPassword').value = '';
-            document.getElementById('editSortOrder').value = '1';
-            document.getElementById('editIcon').value = '';
-            document.getElementById('editForm').style.display = 'block';
-            document.getElementById('editForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        };
-
-        window.hideForm = function() {
-            document.getElementById('editForm').style.display = 'none';
-        };
-
-        window.editLink = async function(id) {
-            try {
-                const { data: link, error } = await window.supabase
-                    .from('links')
-                    .select('*')
-                    .eq('id', id)
-                    .single();
-
-                if (error) throw error;
-
-                if (link) {
-                    document.getElementById('formTitle').innerText = '✏️ 编辑链接';
-                    document.getElementById('editId').value = link.id;
-                    document.getElementById('editTitle').value = link.title || '';
-                    document.getElementById('editUrl').value = link.url || '';
-                    document.getElementById('editPassword').value = link.password ? '********' : '';
-                    document.getElementById('editSortOrder').value = link.sort_order || 1;
-                    document.getElementById('editIcon').value = link.icon || '';
-                    document.getElementById('editForm').style.display = 'block';
-                    document.getElementById('editForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            } catch (error) {
-                console.error('加载链接失败:', error);
-                alert('加载链接失败：' + error.message);
-            }
-        };
-
-        window.saveLink = async function() {
-            const id = document.getElementById('editId').value;
-            const title = document.getElementById('editTitle').value.trim();
-            const url = document.getElementById('editUrl').value.trim();
-            const password = document.getElementById('editPassword').value.trim();
-            const sortOrder = parseInt(document.getElementById('editSortOrder').value) || 1;
-            const icon = document.getElementById('editIcon').value.trim() || null;
-
-            if (!title) {
-                alert('请输入标题');
-                return;
-            }
-            if (title.length > 50) {
-                alert('标题不能超过50个字符');
-                return;
-            }
-            if (!url) {
-                alert('请输入URL地址');
-                return;
-            }
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                alert('URL必须以 http:// 或 https:// 开头');
-                return;
-            }
-            if (url.length > 500) {
-                alert('URL地址过长');
-                return;
-            }
-            if (password && password.length > 50) {
-                alert('密码不能超过50个字符');
-                return;
-            }
-
-            const linkData = {
-                title: title,
-                url: url,
-                sort_order: sortOrder,
-                icon: icon
-            };
-            
-            if (password && password !== '********') {
-                linkData.password = password;
-            } else if (!password) {
-                linkData.password = null;
-            }
-
-            try {
-                let error;
-                
-                if (id) {
-                    if (password === '********') {
-                        delete linkData.password;
-                    }
-                    
-                    ({ error } = await window.supabase
-                        .from('links')
-                        .update(linkData)
-                        .eq('id', id));
-                } else {
-                    ({ error } = await window.supabase
-                        .from('links')
-                        .insert([linkData]));
-                }
-
-                if (error) throw error;
-
-                alert(id ? '✅ 更新成功' : '✅ 新增成功');
-                window.hideForm();
-                loadLinks();
-            } catch (error) {
-                console.error('保存失败:', error);
-                alert('❌ 保存失败: ' + error.message);
-            }
-        };
-
-        window.deleteLink = async function(id) {
-            if (!confirm('确定要删除这个链接吗？此操作不可恢复！')) return;
-
-            try {
-                const { error } = await window.supabase
-                    .from('links')
-                    .delete()
-                    .eq('id', id);
-
-                if (error) throw error;
-
-                alert('✅ 删除成功');
-                loadLinks();
-            } catch (error) {
-                console.error('删除失败:', error);
-                alert('❌ 删除失败: ' + error.message);
-            }
-        };
-
-        async function testConnection() {
-            try {
-                const { error } = await window.supabase.from('links').select('count', { count: 'exact', head: true });
-                if (error) throw error;
-                showStatus('数据库连接正常', true);
-            } catch (error) {
-                console.warn('连接测试:', error);
-                showStatus('连接失败', false);
-            }
+    function renderCategoryChips() {
+        const container = document.getElementById('categoryChips');
+        if (categories.length === 0) {
+            container.innerHTML = '<span style="color:#7f8fa4;font-size:0.85rem;">暂无分类</span>';
+            return;
         }
+        container.innerHTML = categories.map((cat, i) => {
+            const color = getColor(i);
+            const count = allLinks.filter(l => (l.category || '默认') === cat).length;
+            const isDefault = cat === '默认';
+            return `<div class="cat-chip" style="background:${color}22;border-color:${color}55;color:${color};">
+                <span class="cat-dot-sm" style="background:${color};"></span>
+                ${escapeHtml(cat)}
+                <span class="cat-count">${count}</span>
+                ${isDefault ? '' : `<span class="cat-delete" onclick="window.deleteCategory('${escapeHtml(cat)}')" title="删除分类">✕</span>`}
+            </div>`;
+        }).join('');
+    }
 
-        testConnection();
-        checkSession();
-        
-        document.getElementById('adminPassword')?.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                window.handleLogin();
+    function updateCategorySelect() {
+        const sel = document.getElementById('editCategory');
+        sel.innerHTML = categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    }
+
+    function updateFilterBar() {
+        const bar = document.getElementById('filterBar');
+        bar.style.display = 'flex';
+        const items = ['全部', ...categories];
+        bar.innerHTML = items.map(c =>
+            `<div class="filter-chip ${c === currentFilter ? 'active' : ''}" onclick="window.filterBy('${escapeHtml(c)}')">${escapeHtml(c)}</div>`
+        ).join('');
+    }
+
+    window.addCategory = async function() {
+        const input = document.getElementById('newCatInput');
+        const name = input.value.trim();
+        if (!name) return alert('请输入分类名称');
+        if (name.length > 20) return alert('分类名称不能超过20个字符');
+        if (categories.includes(name)) return alert('该分类已存在');
+        categories.push(name);
+        categories.sort((a, b) => a === '默认' ? -1 : b === '默认' ? 1 : a.localeCompare(b));
+        input.value = '';
+        renderCategoryChips();
+        updateCategorySelect();
+        updateFilterBar();
+    };
+
+    window.deleteCategory = async function(cat) {
+        if (!confirm(`确定删除分类"${cat}"？\n该分类下的链接将变为"常用"分类。`)) return;
+        // 把该分类的链接改成"常用"
+        try {
+            const { error } = await window.supabase.from('links').update({ category: '常用' }).eq('category', cat);
+            if (error) throw error;
+            categories = categories.filter(c => c !== cat);
+            if (!categories.includes('常用')) categories.unshift('常用');
+            if (currentFilter === cat) currentFilter = '全部';
+            renderCategoryChips();
+            updateCategorySelect();
+            updateFilterBar();
+            await loadLinks();
+        } catch (e) {
+            alert('删除分类失败：' + e.message);
+        }
+    };
+
+    window.filterBy = function(cat) {
+        currentFilter = cat;
+        updateFilterBar();
+        renderLinks();
+    };
+
+    // ===== 登录 =====
+    window.handleLogin = async function() {
+        const email = document.getElementById('adminEmail').value.trim();
+        const password = document.getElementById('adminPassword').value;
+        const errorEl = document.getElementById('loginError');
+        errorEl.style.display = 'none';
+        if (!email || !password) { errorEl.textContent = '请填写邮箱和密码'; errorEl.style.display = 'block'; return; }
+        try {
+            const { data, error } = await window.supabase.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            if (data.session) {
+                document.getElementById('loginForm').classList.remove('active');
+                document.getElementById('adminPanel').classList.add('active');
+                document.getElementById('userInfo').style.display = 'flex';
+                document.getElementById('userEmail').textContent = data.user.email;
+                showStatus('已登录', true);
+                await loadCategories();
+                await loadLinks();
             }
-        });
+        } catch (error) {
+            let msg = '登录失败';
+            if (error.message.includes('Invalid login credentials')) msg = '账号或密码错误';
+            else if (error.message.includes('rate limit')) msg = '操作太频繁，请稍后再试';
+            else msg = '登录失败：' + error.message;
+            errorEl.textContent = msg; errorEl.style.display = 'block';
+        }
+    };
+
+    window.logout = async function() {
+        try {
+            await window.supabase.auth.signOut();
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('userInfo').style.display = 'none';
+            document.getElementById('adminEmail').value = '';
+            document.getElementById('adminPassword').value = '';
+            showStatus('已退出', true);
+        } catch (e) { alert('退出失败：' + e.message); }
+    };
+
+    async function checkSession() {
+        try {
+            const { data: { session }, error } = await window.supabase.auth.getSession();
+            if (error) throw error;
+            if (session) {
+                document.getElementById('loginForm').classList.remove('active');
+                document.getElementById('adminPanel').classList.add('active');
+                document.getElementById('userInfo').style.display = 'flex';
+                document.getElementById('userEmail').textContent = session.user.email;
+                showStatus('已登录', true);
+                await loadCategories();
+                await loadLinks();
+            } else {
+                document.getElementById('loginForm').classList.add('active');
+            }
+        } catch (e) {
+            document.getElementById('loginForm').classList.add('active');
+        }
+    }
+
+    window.supabase.auth.onAuthStateChange((event) => {
+        if (event === 'SIGNED_OUT') {
+            document.getElementById('adminPanel').classList.remove('active');
+            document.getElementById('loginForm').classList.add('active');
+            document.getElementById('userInfo').style.display = 'none';
+        }
     });
+
+    // ===== 链接管理 =====
+    async function loadLinks() {
+        const container = document.getElementById('linksList');
+        container.innerHTML = '<div class="loading">⏳ 加载链接列表中...</div>';
+        try {
+            const { data: links, error } = await window.supabase.from('links').select('*').order('sort_order', { ascending: true });
+            if (error) throw error;
+            allLinks = links || [];
+            // 更新分类统计
+            loadCategories();
+            renderLinks();
+        } catch (error) {
+            container.innerHTML = `<div class="empty-state">❌ 加载失败: ${escapeHtml(error.message)}</div>`;
+            showStatus('连接失败', false);
+        }
+    }
+
+    function renderLinks() {
+        const container = document.getElementById('linksList');
+        const filtered = currentFilter === '全部' ? allLinks : allLinks.filter(l => {
+            let cat = l.category || '默认';
+            if (cat === '默认') cat = '常用';
+            return cat === currentFilter;
+        });
+
+        if (filtered.length === 0) {
+            container.innerHTML = `<div class="empty-state">📭 ${currentFilter === '全部' ? '还没有任何链接' : '该分类下没有链接'}</div>`;
+            return;
+        }
+
+        let html = '';
+        filtered.forEach((link, index) => {
+            let cat = link.category || '默认';
+            if (cat === '默认') cat = '常用';
+            const catIndex = categories.indexOf(cat);
+            const color = getColor(catIndex >= 0 ? catIndex : 0);
+
+            html += `
+                <div class="link-item" style="animation-delay: ${index * 0.05}s">
+                    <div class="link-info">
+                        <div class="link-title">
+                            ${escapeHtml(link.title || '未命名')}
+                            ${link.password ? '<span class="protected-badge">🔒 密码保护</span>' : ''}
+                        </div>
+                        <div class="link-url">${escapeHtml(link.url || '')}</div>
+                        <div class="link-meta">
+                            <span class="cat-tag"><span class="cat-dot" style="background:${color};"></span>${escapeHtml(cat)}</span>
+                            <span>排序: ${escapeHtml(link.sort_order || 0)}</span>
+                            ${link.created_at ? `<span>📅 ${new Date(link.created_at).toLocaleDateString()}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="link-actions">
+                        <button class="secondary" onclick="window.editLink('${escapeHtml(link.id)}')">编辑</button>
+                        <button class="danger" onclick="window.deleteLink('${escapeHtml(link.id)}')">删除</button>
+                    </div>
+                </div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    window.refreshList = async function() {
+        await loadCategories();
+        await loadLinks();
+    };
+
+    window.showAddForm = async function() {
+        // 确保分类已加载
+        if (categories.length === 0) await loadCategories();
+        document.getElementById('formTitle').innerText = '➕ 新增链接';
+        document.getElementById('editId').value = '';
+        document.getElementById('editTitle').value = '';
+        document.getElementById('editUrl').value = '';
+        document.getElementById('editPassword').value = '';
+        document.getElementById('editSortOrder').value = '1';
+        document.getElementById('editIcon').value = '';
+        updateCategorySelect();
+        document.getElementById('editCategory').value = categories[0] || '默认';
+        document.getElementById('editForm').style.display = 'block';
+        document.getElementById('editForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+
+    window.hideForm = function() { document.getElementById('editForm').style.display = 'none'; };
+
+    window.editLink = async function(id) {
+        try {
+            // 确保分类已加载
+            if (categories.length === 0) await loadCategories();
+            const { data: link, error } = await window.supabase.from('links').select('*').eq('id', id).single();
+            if (error) throw error;
+            if (link) {
+                document.getElementById('formTitle').innerText = '✏️ 编辑链接';
+                document.getElementById('editId').value = link.id;
+                document.getElementById('editTitle').value = link.title || '';
+                document.getElementById('editUrl').value = link.url || '';
+                document.getElementById('editPassword').value = link.password ? '********' : '';
+                document.getElementById('editSortOrder').value = link.sort_order || 1;
+                document.getElementById('editIcon').value = link.icon || '';
+                updateCategorySelect();
+                let editCat = link.category || '默认';
+                if (editCat === '默认') editCat = '常用';
+                document.getElementById('editCategory').value = editCat;
+                document.getElementById('editForm').style.display = 'block';
+                document.getElementById('editForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        } catch (e) { alert('加载链接失败：' + e.message); }
+    };
+
+    window.saveLink = async function() {
+        const id = document.getElementById('editId').value;
+        const title = document.getElementById('editTitle').value.trim();
+        const url = document.getElementById('editUrl').value.trim();
+        const password = document.getElementById('editPassword').value.trim();
+        const sortOrder = parseInt(document.getElementById('editSortOrder').value) || 1;
+        const icon = document.getElementById('editIcon').value.trim() || null;
+        const category = document.getElementById('editCategory').value || '默认';
+
+        if (!title) return alert('请输入标题');
+        if (title.length > 50) return alert('标题不能超过50个字符');
+        if (!url) return alert('请输入URL地址');
+        if (!url.startsWith('http://') && !url.startsWith('https://')) return alert('URL必须以 http:// 或 https:// 开头');
+        if (url.length > 500) return alert('URL地址过长');
+
+        const linkData = { title, url, sort_order: sortOrder, icon, category: category || '常用' };
+        if (password && password !== '********') linkData.password = password;
+        else if (!password) linkData.password = null;
+
+        try {
+            let error;
+            if (id) {
+                if (password === '********') delete linkData.password;
+                ({ error } = await window.supabase.from('links').update(linkData).eq('id', id));
+            } else {
+                ({ error } = await window.supabase.from('links').insert([linkData]));
+            }
+            if (error) throw error;
+            alert(id ? '✅ 更新成功' : '✅ 新增成功');
+            window.hideForm();
+            await loadCategories();
+            await loadLinks();
+        } catch (e) { alert('❌ 保存失败: ' + e.message); }
+    };
+
+    window.deleteLink = async function(id) {
+        if (!confirm('确定要删除这个链接吗？此操作不可恢复！')) return;
+        try {
+            const { error } = await window.supabase.from('links').delete().eq('id', id);
+            if (error) throw error;
+            alert('✅ 删除成功');
+            await loadCategories();
+            await loadLinks();
+        } catch (e) { alert('❌ 删除失败: ' + e.message); }
+    };
+
+    // ===== 启动 =====
+    testConnection();
+    checkSession();
+
+    document.getElementById('adminPassword')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); window.handleLogin(); }
+    });
+    document.getElementById('newCatInput')?.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); window.addCategory(); }
+    });
+
+    async function testConnection() {
+        try {
+            const { error } = await window.supabase.from('links').select('count', { count: 'exact', head: true });
+            if (error) throw error;
+            showStatus('数据库连接正常', true);
+        } catch (e) { showStatus('连接失败', false); }
+    }
+});
 </script>
 </body>
 </html>

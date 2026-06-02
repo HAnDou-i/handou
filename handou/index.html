@@ -1,46 +1,78 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HanDou的个人导航站 - 啊游的杂货铺">
+    <meta name="theme-color" content="#8dd7d1">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
     <title>HanDou的网站</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ===== 全部样式 (保持原样，仅调整footer-note内布局) ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background: radial-gradient(circle at top left, rgba(183, 244, 243, 0.7), transparent 28%),
                         radial-gradient(circle at bottom right, rgba(255, 190, 218, 0.7), transparent 30%),
                         linear-gradient(135deg, #8dd7d1 0%, #f7c6e1 45%, #f8f0ff 100%);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: clamp(0.8rem, 3vw, 2rem);
+            justify-content: flex-start;
+            padding: clamp(1.5rem, 5vw, 3rem) clamp(0.8rem, 3vw, 2rem);
             color: #152438;
         }
 
-        .nav-card {
-            width: 100%;
-            background: linear-gradient(180deg, rgba(220, 245, 255, 0.35) 0%, rgba(255, 235, 245, 0.22) 100%);
-            border-radius: clamp(28px, 5vw, 42px);
-            padding: clamp(1.2rem, 4vw, 2.4rem);
-            box-shadow: 0 35px 90px rgba(8, 26, 65, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.55);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            max-width: min(90vw, 720px);
-            margin: 0 auto;
-            transition: all 0.3s ease;
+        /* ===== 深色模式 ===== */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: radial-gradient(circle at top left, rgba(30, 80, 90, 0.5), transparent 28%),
+                            radial-gradient(circle at bottom right, rgba(90, 40, 70, 0.4), transparent 30%),
+                            linear-gradient(135deg, #1a2a3a 0%, #2a1a3a 45%, #1e1530 100%);
+                color: #d8e4f0;
+            }
+            .main-card { background: rgba(20, 30, 50, 0.45); border-color: rgba(255,255,255,0.12); }
+            .greeting { background: rgba(40, 55, 80, 0.35); border-color: rgba(255,255,255,0.15); color: #d0dce8; }
+            .greeting .tag { background: rgba(180, 200, 230, 0.25); color: #c8d8ec; }
+            .section-header { color: #d0dce8; }
+            .section-header .arrow { color: #8898a8; }
+            .section-body { border-color: rgba(255,255,255,0.08); }
+            .link-item { background: rgba(30, 45, 70, 0.3); border-color: rgba(255,255,255,0.1); color: #c8d8ec; }
+            .link-item:hover { background: rgba(40, 60, 90, 0.4); border-color: rgba(255,255,255,0.2); }
+            .link-item .item-icon { color: #c8d8ec; }
+            .link-item .item-text { color: #c8d8ec; }
+            .lock-badge { background: rgba(40, 55, 80, 0.6); color: #a8c0d8; border-color: rgba(255,255,255,0.15); }
+            .spare-link { background: rgba(30, 45, 70, 0.3); border-color: rgba(255,255,255,0.1); color: #c8d8ec; }
+            .spare-link:hover { background: rgba(40, 60, 90, 0.4); }
+            .footer-note a { color: #7ca8d0; }
+            .password-overlay { background: rgba(0, 0, 0, 0.65); }
+            .password-dialog { background: rgba(20, 30, 50, 0.6); border-color: rgba(255,255,255,0.15); }
+            .password-dialog h3 { color: #d0dce8; }
+            .password-dialog p { color: #8898a8; }
+            .password-dialog input { background: rgba(30, 45, 70, 0.4); border-color: rgba(255,255,255,0.12); color: #d0dce8; }
+            .dialog-btn { background: rgba(30, 45, 70, 0.4); color: #c8d8ec; border-color: rgba(255,255,255,0.12); }
+            .dialog-btn.confirm { background: rgba(60, 90, 140, 0.7); }
+            .dialog-btn:hover { background: rgba(40, 60, 90, 0.5); }
         }
 
+        /* ===== 动画 ===== */
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+
+        /* ===== 顶部问候 ===== */
         .greeting {
             display: inline-flex;
             align-items: center;
@@ -52,16 +84,13 @@
             font-size: clamp(0.85rem, 3vw, 1rem);
             font-weight: 500;
             color: #1a2b3c;
-            margin-bottom: clamp(1.2rem, 4vw, 2rem);
+            margin-bottom: clamp(1.5rem, 4vw, 2rem);
             box-shadow: 0 16px 35px rgba(15, 38, 68, 0.1);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
-            margin-left: auto;
-            margin-right: auto;
             white-space: nowrap;
-            max-width: 100%;
+            animation: fadeSlideIn 0.5s ease both;
         }
-
         .greeting .tag {
             background: #2e405b;
             color: white;
@@ -72,63 +101,135 @@
             letter-spacing: 0.3px;
         }
 
-        .link-list {
-            display: flex;
-            flex-direction: column;
-            gap: clamp(0.6rem, 2vw, 0.9rem);
-            margin: clamp(1rem, 4vw, 1.8rem) 0;
+        /* ===== 主卡片容器 ===== */
+        .main-card {
+            width: 100%;
+            max-width: min(90vw, 720px);
+            background: rgba(255, 255, 255, 0.28);
+            border-radius: clamp(24px, 5vw, 36px);
+            padding: clamp(1.2rem, 3vw, 2rem);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 0 20px 50px rgba(15, 38, 68, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            animation: fadeSlideIn 0.5s ease both;
         }
 
-        .list-item {
+        /* ===== 模块头部（可折叠） ===== */
+        .section {
+            margin-bottom: clamp(0.8rem, 2vw, 1rem);
+        }
+        .section:last-child { margin-bottom: 0; }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: clamp(8px, 2vw, 12px);
+            padding: clamp(0.7rem, 2vw, 1rem) clamp(0.5rem, 2vw, 0.8rem);
+            cursor: pointer;
+            border-radius: clamp(16px, 3vw, 24px);
+            transition: background 0.2s;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .section-header:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .section-dot {
+            width: clamp(10px, 3vw, 14px);
+            height: clamp(10px, 3vw, 14px);
+            border-radius: 50%;
+            flex-shrink: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .section-title {
+            font-size: clamp(0.95rem, 3.5vw, 1.1rem);
+            font-weight: 650;
+            color: #1a2b3c;
+            flex: 1;
+        }
+
+        .section-count {
+            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+            color: #7f8fa4;
+        }
+
+        .arrow {
+            font-size: 0.8rem;
+            color: #7f8fa4;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+        }
+        .arrow.open { transform: rotate(90deg); }
+
+        /* ===== 折叠内容 ===== */
+        .section-body {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.3s ease,
+                        padding 0.3s ease;
+            opacity: 0;
+            padding: 0 clamp(0.5rem, 2vw, 0.8rem);
+        }
+        .section-body.open {
+            opacity: 1;
+            padding: clamp(0.3rem, 1.5vw, 0.6rem) clamp(0.5rem, 2vw, 0.8rem) clamp(0.5rem, 2vw, 0.8rem);
+        }
+
+        /* ===== 链接网格 ===== */
+        .link-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 30vw, 180px), 1fr));
+            gap: clamp(8px, 2vw, 12px);
+        }
+
+        .link-item {
             display: flex;
             align-items: center;
             justify-content: flex-start;
             background: rgba(230, 250, 255, 0.26);
-            border-radius: clamp(40px, 8vw, 100px);
-            padding: clamp(0.75rem, 2.5vw, 1rem) clamp(1.1rem, 4vw, 2rem);
+            border-radius: clamp(30px, 6vw, 50px);
+            padding: clamp(0.55rem, 2vw, 0.75rem) clamp(0.8rem, 3vw, 1.2rem);
             border: 1px solid rgba(208, 238, 255, 0.48);
-            box-shadow: 0 18px 70px -32px rgba(15, 38, 68, 0.16);
-            transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, backdrop-filter 0.25s ease;
+            box-shadow: 0 4px 16px rgba(15, 38, 68, 0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
             cursor: pointer;
             color: #10203d;
-            font-weight: 600;
-            font-size: clamp(0.95rem, 3.5vw, 1.15rem);
-            width: 100%;
-            position: relative;
-            min-height: clamp(52px, 8vh, 60px);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            font-weight: 550;
+            font-size: clamp(0.85rem, 3vw, 0.95rem);
+            min-height: clamp(44px, 6vh, 52px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            gap: clamp(6px, 2vw, 10px);
         }
-
-        .list-item:hover {
-            background: rgba(220, 240, 255, 0.36);
+        .link-item:hover {
+            background: rgba(220, 240, 255, 0.38);
             border-color: rgba(190, 225, 255, 0.78);
-            box-shadow: 0 35px 100px -20px rgba(15, 38, 68, 0.28);
-            transform: translateY(-4px) scale(1.01);
-            backdrop-filter: blur(26px);
-            -webkit-backdrop-filter: blur(26px);
+            box-shadow: 0 8px 24px rgba(15, 38, 68, 0.12);
+            transform: translateY(-2px) scale(1.01);
         }
-
-        .list-item:active {
+        .link-item:active {
             background: rgba(220, 240, 255, 0.24);
-            transform: scale(0.98);
+            transform: scale(0.97);
             transition: 0.05s;
         }
 
         .item-icon {
             flex-shrink: 0;
-            width: clamp(2rem, 7vw, 2.4rem);
-            height: clamp(1.5rem, 5vw, 1.8rem);
+            width: clamp(1.4rem, 5vw, 1.8rem);
+            height: clamp(1.4rem, 5vw, 1.8rem);
             display: flex;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: center;
             pointer-events: none;
             color: #0f223a;
         }
-
         .item-icon svg {
-            width: clamp(1.3rem, 5vw, 1.6rem);
-            height: clamp(1.3rem, 5vw, 1.6rem);
+            width: clamp(1.1rem, 4vw, 1.4rem);
+            height: clamp(1.1rem, 4vw, 1.4rem);
             stroke: currentColor;
             stroke-width: 2;
             fill: none;
@@ -136,62 +237,39 @@
             stroke-linejoin: round;
             filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.08));
         }
-
-        .text-wrapper {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            gap: clamp(6px, 2vw, 10px);
-            background: transparent;
-            pointer-events: none;
-            max-width: min(70%, 400px);
-        }
-
         .item-text {
             letter-spacing: -0.2px;
-            text-align: center;
             color: #0f223a;
-            font-size: clamp(0.9rem, 3vw, 1.05rem);
             line-height: 1.35;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             text-shadow: 0 0 1px rgba(255, 255, 255, 0.6);
         }
-
         .lock-badge {
             background: rgba(241, 247, 255, 0.9);
             color: #1c3f69;
-            font-size: clamp(0.6rem, 2.2vw, 0.75rem);
+            font-size: clamp(0.55rem, 2vw, 0.65rem);
             font-weight: 700;
-            padding: clamp(0.15rem, 0.8vw, 0.25rem) clamp(0.5rem, 2vw, 0.9rem);
-            border-radius: clamp(25px, 5vw, 40px);
+            padding: clamp(0.1rem, 0.5vw, 0.15rem) clamp(0.4rem, 1.5vw, 0.6rem);
+            border-radius: clamp(20px, 4vw, 30px);
             white-space: nowrap;
             border: 1px solid rgba(255, 255, 255, 0.85);
             flex-shrink: 0;
             pointer-events: none;
         }
 
-        .item-protected {
-            background: rgba(235, 245, 255, 0.2);
-            border-left: 4px solid rgba(176, 194, 217, 0.8);
-            border: 1px solid rgba(210, 230, 250, 0.5);
-        }
-
+        /* ===== 底部备用链接 ===== */
         .spare-block {
             display: flex;
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
-            gap: clamp(0.6rem, 2.5vw, 1.5rem);
-            margin-top: clamp(1rem, 4vw, 1.8rem);
+            gap: clamp(0.6rem, 2.5vw, 1.2rem);
+            margin-top: clamp(1.5rem, 4vw, 2rem);
             padding-top: clamp(1rem, 3vw, 1.4rem);
-            border-top: 1px solid rgba(255, 255, 255, 0.5);
-            margin-bottom: clamp(0.6rem, 2vw, 1.2rem);
+            border-top: 1px solid rgba(255, 255, 255, 0.4);
         }
-
         .spare-link {
             background: rgba(220, 245, 255, 0.24);
             border-radius: clamp(35px, 7vw, 60px);
@@ -200,470 +278,374 @@
             font-weight: 550;
             color: #163551;
             border: 1px solid rgba(210, 235, 255, 0.6);
-            box-shadow: 0 18px 40px -20px rgba(15, 38, 68, 0.16);
+            box-shadow: 0 6px 20px rgba(15, 38, 68, 0.06);
             cursor: pointer;
             transition: 0.2s ease;
             display: inline-flex;
             align-items: center;
             gap: clamp(4px, 1.5vw, 8px);
-            min-height: clamp(44px, 7vh, 52px);
+            min-height: clamp(44px, 6vh, 52px);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
         }
+        .spare-link:hover { background: rgba(235, 250, 255, 0.36); border-color: rgba(220, 240, 255, 0.8); transform: translateY(-1px); }
+        .spare-link:active { transform: scale(0.97); }
+        .spare-link svg { width: clamp(1.2rem, 4vw, 1.5rem); height: clamp(1.2rem, 4vw, 1.5rem); stroke: #2d4059; stroke-width: 1.8; fill: none; }
 
-        .spare-link:hover {
-            background: rgba(235, 250, 255, 0.36);
-            border-color: rgba(220, 240, 255, 0.8);
-            transform: translateY(-1px);
-        }
-
-        .spare-link:active {
-            transform: scale(0.97);
-        }
-
-        .spare-link svg {
-            width: clamp(1.2rem, 4vw, 1.5rem);
-            height: clamp(1.2rem, 4vw, 1.5rem);
-            stroke: #2d4059;
-            stroke-width: 1.8;
-            fill: none;
-        }
-
-        .extra-tags {
-            display: flex;
-            gap: clamp(6px, 2vw, 12px);
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .mini-tag {
-            background: rgba(235, 245, 255, 0.24);
-            border-radius: clamp(20px, 4vw, 30px);
-            padding: clamp(0.15rem, 0.8vw, 0.25rem) clamp(0.8rem, 3vw, 1.2rem);
-            font-size: clamp(0.7rem, 2.5vw, 0.9rem);
-            color: #143351;
-            border: 1px solid rgba(210, 230, 245, 0.6);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-        }
-
-        .password-overlay {
+        .footer-note {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            bottom: 10px;
+            left: 15px;
+            padding: 0;
+        }
+        .footer-note a { color: #1f4172; text-decoration: none; font-size: 0.6rem; opacity: 0.35; transition: opacity 0.2s; }
+        .footer-note a:hover { opacity: 0.7; }
+
+        /* ===== 骨架屏 ===== */
+        .skeleton-section {
+            padding: clamp(0.7rem, 2vw, 1rem) clamp(0.5rem, 2vw, 0.8rem);
+        }
+        .skeleton-header {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+        }
+        .skeleton-dot { width: 14px; height: 14px; border-radius: 50%; background: linear-gradient(90deg, rgba(200,220,240,0.2) 25%, rgba(200,220,240,0.4) 50%, rgba(200,220,240,0.2) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        .skeleton-line { border-radius: 8px; background: linear-gradient(90deg, rgba(200,220,240,0.15) 25%, rgba(200,220,240,0.3) 50%, rgba(200,220,240,0.15) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+        .skeleton-line.title { width: 35%; height: 16px; }
+        .skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        .skeleton-card { height: 48px; border-radius: 50px; background: linear-gradient(90deg, rgba(200,220,240,0.12) 25%, rgba(200,220,240,0.25) 50%, rgba(200,220,240,0.12) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+
+        /* ===== 密码弹窗 ===== */
+        .password-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(20, 30, 45, 0.6);
             backdrop-filter: blur(5px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: clamp(0.8rem, 4vw, 2rem);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000; padding: clamp(0.8rem, 4vw, 2rem);
+            opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0.25s ease;
         }
-
+        .password-overlay.active { opacity: 1; visibility: visible; }
         .password-dialog {
             background: rgba(240, 248, 255, 0.24);
             border-radius: clamp(30px, 6vw, 48px);
             padding: clamp(1.5rem, 6vw, 2.5rem) clamp(1.2rem, 5vw, 2rem);
             width: min(90%, 360px);
-            max-width: 360px;
             box-shadow: 0 36px 80px -32px rgba(8, 26, 65, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.6);
             text-align: center;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            transform: scale(0.95); transition: transform 0.25s ease;
         }
-
-        .password-dialog h3 {
-            color: #1b3a5c;
-            font-weight: 550;
-            margin-bottom: clamp(0.4rem, 2vw, 0.8rem);
-            font-size: clamp(1.2rem, 5vw, 1.5rem);
-        }
-
-        .password-dialog p {
-            color: #4a6382;
-            margin-bottom: clamp(1rem, 4vw, 1.6rem);
-            font-size: clamp(0.8rem, 3vw, 0.95rem);
-        }
-
+        .password-overlay.active .password-dialog { transform: scale(1); }
+        .password-dialog.shake { animation: shake 0.4s ease; }
+        .password-dialog h3 { color: #1b3a5c; font-weight: 550; margin-bottom: 0.6rem; font-size: clamp(1.2rem, 5vw, 1.5rem); }
+        .password-dialog p { color: #4a6382; margin-bottom: 1.2rem; font-size: clamp(0.8rem, 3vw, 0.95rem); }
+        .password-input-wrap { position: relative; margin-bottom: 1rem; }
+        .password-input-wrap .lock-icon { position: absolute; left: clamp(0.8rem, 3vw, 1.2rem); top: 50%; transform: translateY(-50%); width: 18px; height: 18px; stroke: #7f8fa4; fill: none; stroke-width: 2; pointer-events: none; }
         .password-dialog input {
-            width: 100%;
-            padding: clamp(0.6rem, 3vw, 1rem) clamp(0.8rem, 3vw, 1.2rem);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            background: rgba(245, 250, 255, 0.28);
-            border-radius: clamp(35px, 7vw, 50px);
-            font-size: clamp(0.9rem, 3.5vw, 1rem);
-            outline: none;
-            margin-bottom: clamp(1rem, 4vw, 1.5rem);
-            text-align: center;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            width: 100%; padding: clamp(0.6rem, 3vw, 1rem) clamp(2.2rem, 6vw, 2.8rem);
+            border: 1px solid rgba(255,255,255,0.5); background: rgba(245,250,255,0.28);
+            border-radius: clamp(35px, 7vw, 50px); font-size: clamp(0.9rem, 3.5vw, 1rem);
+            outline: none; text-align: center; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            transition: border-color 0.2s, background 0.2s;
         }
-
-        .password-dialog input:focus {
-            border-color: rgba(87, 121, 180, 0.9);
-            background: rgba(245, 250, 255, 0.34);
-        }
-
-        .dialog-buttons {
-            display: flex;
-            gap: clamp(6px, 2vw, 12px);
-        }
-
+        .password-dialog input:focus { border-color: rgba(87, 121, 180, 0.9); background: rgba(245, 250, 255, 0.34); }
+        .password-error { color: #dc3545; font-size: 0.85rem; margin-bottom: 0.8rem; min-height: 1.2em; }
+        .dialog-buttons { display: flex; gap: 8px; }
         .dialog-btn {
-            flex: 1;
-            padding: clamp(0.5rem, 2.5vw, 0.8rem) 0;
+            flex: 1; padding: clamp(0.5rem, 2.5vw, 0.8rem) 0;
             border-radius: clamp(30px, 6vw, 50px);
-            border: 1px solid rgba(255, 255, 255, 0.55);
-            font-weight: 600;
-            font-size: clamp(0.8rem, 3vw, 0.95rem);
-            cursor: pointer;
-            background: rgba(245, 250, 255, 0.28);
-            color: #1f3d60;
-            transition: 0.2s ease;
-            min-height: clamp(40px, 7vh, 48px);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.55);
+            font-weight: 600; font-size: clamp(0.8rem, 3vw, 0.95rem);
+            cursor: pointer; background: rgba(245,250,255,0.28);
+            color: #1f3d60; transition: 0.2s ease;
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
         }
+        .dialog-btn.confirm { background: rgba(27, 52, 90, 0.86); color: white; border: 1px solid rgba(255,255,255,0.75); }
+        .dialog-btn.confirm:hover { background: rgba(31, 58, 108, 0.96); }
+        .dialog-btn:hover { background: rgba(245,250,255,0.42); }
+        .dialog-btn:active { transform: scale(0.96); }
 
-        .dialog-btn.confirm {
-            background: rgba(27, 52, 90, 0.86);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.75);
-        }
-
-        .dialog-btn.confirm:hover {
-            background: rgba(31, 58, 108, 0.96);
-        }
-
-        .dialog-btn:hover {
-            background: rgba(245, 250, 255, 0.42);
-        }
-
-        .dialog-btn:active {
-            transform: scale(0.96);
-        }
-
-        /* ===== 底部信息 — 完全左对齐（管理字样在最左边） ===== */
-        .footer-note {
-            margin-top: clamp(1.2rem, 5vw, 2rem);
-            display: flex;
-            justify-content: flex-start;        /* 改为 flex-start 使内容靠左 */
-            align-items: center;
-            gap: clamp(0.8rem, 3vw, 1.5rem);
-            flex-wrap: wrap;
-            color: #4a5d78;
-            font-size: clamp(0.7rem, 2.5vw, 0.85rem);
-            border-top: 1px solid rgba(255, 255, 255, 0.35);
-            padding: clamp(0.8rem, 3vw, 1.2rem);
-            background: rgba(235, 243, 255, 0.18);
-            border-radius: clamp(30px, 5vw, 45px);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25);
-        }
-
-        /* 第一个span（包裹管理链接的容器）不再有背景、内边距 — 完全贴合左边 */
-        .footer-note span:first-child {
-            background: transparent;            /* 移除背景 */
-            padding: 0;                         /* 移除内边距 */
-            border-radius: 0;                    /* 移除圆角 */
-            border: none;                        /* 移除边框 */
-        }
-
-        /* 管理链接样式保持原样（只去掉背景相关）*/
-        .footer-note a {
-            color: #1f4172;
-            text-decoration: none;
-            border-bottom: 1px dotted;
-            /* 保留原有边框，更清晰 */
-        }
-
-        /* 可选：保持第二个span（如果有）的默认样式，但不需要改动 */
-        .footer-note span:last-child {
-            background: rgba(235, 243, 255, 0.22);
-            padding: clamp(0.15rem, 1vw, 0.3rem) clamp(0.8rem, 3vw, 1.2rem);
-            border-radius: clamp(30px, 6vw, 50px);
-            border: 1px solid rgba(255, 255, 255, 0.45);
-            box-shadow: 0 10px 30px rgba(15, 38, 68, 0.06);
-        }
-        }
-
-        @media (hover: hover) and (pointer: fine) {
-            .list-item:hover {
-                background: rgba(220, 240, 255, 0.36);
-                border-color: rgba(190, 225, 255, 0.78);
-                box-shadow: 0 35px 100px -20px rgba(15, 38, 68, 0.28);
-                transform: translateY(-4px) scale(1.01);
-                backdrop-filter: blur(26px);
-                -webkit-backdrop-filter: blur(26px);
-            }
-            
-            .spare-link:hover {
-                background: rgba(235, 250, 255, 0.42);
-                border-color: rgba(220, 240, 255, 0.8);
-            }
+        /* ===== 空模块提示 ===== */
+        .empty-module {
+            text-align: center;
+            padding: clamp(0.8rem, 2vw, 1.2rem);
+            color: #7f8fa4;
+            font-size: 0.85rem;
         }
 
         @media (min-width: 1024px) {
-            .nav-card {
-                max-width: 720px;
-            }
-            .list-item {
-                font-size: 1.1rem;
-            }
+            .main-card { max-width: 720px; }
         }
     </style>
 </head>
 <body>
-<div class="nav-card">
-    <div class="greeting">
-       ⚡️欢迎访问 · 啊游的杂货铺
-        <span class="tag">HanDou</span>
-        </a>  <!-- 此处原有一个多余的</a>，但保留不影响布局，且已存在 -->
-    </div>
 
-    <!-- 动态链接列表 -->
-    <div class="link-list" id="dynamic-link-list">
-        <div style="text-align: center; padding: 1.5rem; color: #62748c;">⏳ 加载链接中...</div>
-    </div>
+<!-- 顶部问候 -->
+<div class="greeting">
+   ⚡️欢迎访问 · 啊游的杂货铺
+    <span class="tag">HanDou</span>
+</div>
 
-    <!-- 备用区块 -->
-    <div class="spare-block">
-        <div class="spare-link" data-url="https://handou.9919199.xyz:5555" id="spareLink">
-            <svg viewBox="0 0 24 24">
-                <rect x="3" y="3" width="8" height="8" rx="1" stroke="currentColor" fill="none"/>
-                <rect x="13" y="3" width="8" height="8" rx="1" stroke="currentColor" fill="none"/>
-                <rect x="3" y="13" width="8" height="8" rx="1" stroke="currentColor" fill="none"/>
-                <rect x="13" y="13" width="8" height="8" rx="1" stroke="currentColor" fill="none"/>
-            </svg>
-            备用
+<!-- 主卡片 -->
+<div class="main-card" id="mainCard">
+    <!-- 骨架屏 -->
+    <div class="skeleton-section">
+        <div class="skeleton-header">
+            <div class="skeleton-dot"></div>
+            <div class="skeleton-line title"></div>
         </div>
-        <div class="extra-tags"></div>
+        <div class="skeleton-grid">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
     </div>
+</div>
 
-    <!-- 密码弹窗（通用，用于所有受保护链接） -->
-    <div class="password-overlay" id="passwordOverlay" onclick="closePasswordDialogIfOutside(event)">
-        <div class="password-dialog" onclick="event.stopPropagation()">
-            <h3>🔐 请输入密码</h3>
-            <p id="passwordPrompt">此链接受密码保护</p>
+<div class="footer-note">
+    <a href="admin.html" rel="noopener noreferrer">管理</a>
+</div>
+
+<!-- 密码弹窗 -->
+<div class="password-overlay" id="passwordOverlay" onclick="closePasswordDialogIfOutside(event)">
+    <div class="password-dialog" id="passwordDialog" onclick="event.stopPropagation()">
+        <h3>🔐 请输入密码</h3>
+        <p id="passwordPrompt">此链接受密码保护</p>
+        <div class="password-input-wrap">
+            <svg class="lock-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
             <input type="password" id="passwordInput" placeholder="输入密码" autocomplete="off">
-            <div class="dialog-buttons">
-                <button class="dialog-btn" onclick="closePasswordDialog()">取消</button>
-                <button class="dialog-btn confirm" onclick="verifyPassword()">验证</button>
-            </div>
+        </div>
+        <div class="password-error" id="passwordError"></div>
+        <div class="dialog-buttons">
+            <button class="dialog-btn" onclick="closePasswordDialog()">取消</button>
+            <button class="dialog-btn confirm" onclick="verifyPassword()">验证</button>
         </div>
     </div>
+</div>
 
 <script>
-    // ===== Supabase 配置 =====
-    (function() {
-        const SUPABASE_URL = 'https://mzxjyupadsakhsceidvm.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16eGp5dXBhZHNha2hzY2VpZHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDUzNjYsImV4cCI6MjA4NzkyMTM2Nn0.M4sPqp3-oYuw7JlRYmcqnCkLbRPvDYi7O6yMMdPXu88';
-        
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        // ===== 全局变量 =====
-        let pendingLink = {
-            url: '',
-            password: ''
-        };
+(function() {
+    const SUPABASE_URL = 'https://mzxjyupadsakhsceidvm.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16eGp5dXBhZHNha2hzY2VpZHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDUzNjYsImV4cCI6MjA4NzkyMTM2Nn0.M4sPqp3-oYuw7JlRYmcqnCkLbRPvDYi7O6yMMdPXu88';
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // ===== 安全的HTML转义函数 =====
-        function escapeHtml(unsafe) {
-            if (!unsafe) return '';
-            return unsafe
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+    let pendingLink = { url: '', password: '' };
+    let attemptCount = 0;
+    const MAX_ATTEMPTS = 5;
+    let lockoutUntil = 0;
+
+    const MODULE_COLORS = ['#7ecfcf', '#f7a8c6', '#a8c8f7'];
+    const SECTION_IDS = ['常用', '其他'];
+    const STORAGE_KEY = 'handou_fold_state';
+
+    function escapeHtml(unsafe) {
+        if (!unsafe) return '';
+        return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    function getFoldState() {
+        try {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) return JSON.parse(saved);
+        } catch(e) {}
+        return { '安装': true, '相关': true, '收藏': true };
+    }
+
+    function saveFoldState(state) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
+    }
+
+    function toggleSection(sectionId) {
+        const body = document.getElementById('body-' + sectionId);
+        const arrow = document.getElementById('arrow-' + sectionId);
+        if (!body || !arrow) return;
+
+        const isOpen = body.classList.contains('open');
+        if (isOpen) {
+            body.style.maxHeight = '0px';
+            body.classList.remove('open');
+            arrow.classList.remove('open');
+        } else {
+            body.classList.add('open');
+            arrow.classList.add('open');
+            body.style.maxHeight = body.scrollHeight + 'px';
         }
 
-        // ===== 安全的URL编码函数 =====
-        function encodeUrl(url) {
-            try {
-                return encodeURI(url);
-            } catch (e) {
-                return '#';
-            }
+        const state = getFoldState();
+        state[sectionId] = !isOpen;
+        saveFoldState(state);
+    }
+
+    // 密码相关
+    window.closePasswordDialog = function() {
+        document.getElementById('passwordOverlay').classList.remove('active');
+        pendingLink = { url: '', password: '' };
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('passwordError').textContent = '';
+        document.getElementById('passwordDialog').classList.remove('shake');
+    };
+
+    window.closePasswordDialogIfOutside = function(event) {
+        if (event.target.classList.contains('password-overlay')) window.closePasswordDialog();
+    };
+
+    window.verifyPassword = function() {
+        if (Date.now() < lockoutUntil) {
+            const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+            document.getElementById('passwordError').textContent = `请等待 ${remaining} 秒`;
+            return;
         }
+        const input = document.getElementById('passwordInput').value;
+        if (input && pendingLink.password && input === pendingLink.password) {
+            attemptCount = 0;
+            if (pendingLink.url) window.open(pendingLink.url, '_blank', 'noopener,noreferrer');
+            window.closePasswordDialog();
+            return;
+        }
+        attemptCount++;
+        const dialog = document.getElementById('passwordDialog');
+        dialog.classList.remove('shake');
+        void dialog.offsetWidth;
+        dialog.classList.add('shake');
+        if (attemptCount >= MAX_ATTEMPTS) {
+            lockoutUntil = Date.now() + 30000;
+            document.getElementById('passwordError').textContent = '尝试过多，请等 30 秒';
+            attemptCount = 0;
+        } else {
+            document.getElementById('passwordError').textContent = `密码错误（${attemptCount}/${MAX_ATTEMPTS}）`;
+        }
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('passwordInput').focus();
+    };
 
-        // ===== 点击处理函数 =====
-        window.handleLinkClick = function(event, element) {
-            event.stopPropagation();
-            const url = element.getAttribute('data-url');
-            if (url) {
-                // 验证URL安全性
-                if (url.startsWith('http://') || url.startsWith('https://')) {
-                    window.open(url, '_blank', 'noopener,noreferrer');
-                }
-            }
-        };
+    window.handleProtectedClick = function(event, url, password) {
+        event.stopPropagation();
+        pendingLink = { url, password };
+        document.getElementById('passwordPrompt').innerText = '此链接受密码保护';
+        document.getElementById('passwordError').textContent = '';
+        document.getElementById('passwordOverlay').classList.add('active');
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('passwordInput').focus();
+    };
 
-        window.closePasswordDialog = function() {
-            document.getElementById('passwordOverlay').style.display = 'none';
-            pendingLink = { url: '', password: '' };
-            document.getElementById('passwordInput').value = '';
-        };
+    window.handleLinkClick = function(event, element) {
+        event.stopPropagation();
+        const url = element.getAttribute('data-url');
+        if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+        }
+    };
 
-        window.closePasswordDialogIfOutside = function(event) {
-            if (event.target.classList.contains('password-overlay')) {
-                window.closePasswordDialog();
-            }
-        };
+    // ===== 渲染 =====
+    function renderSections(links) {
+        const mainCard = document.getElementById('mainCard');
+        const foldState = getFoldState();
 
-        window.verifyPassword = function() {
-            const input = document.getElementById('passwordInput').value;
-            // 使用常量时间比较防止时序攻击
-            if (input && pendingLink.password && input.length === pendingLink.password.length) {
-                let match = true;
-                for (let i = 0; i < input.length; i++) {
-                    if (input.charCodeAt(i) !== pendingLink.password.charCodeAt(i)) {
-                        match = false;
-                        break;
-                    }
-                }
-                if (match && input === pendingLink.password) {
-                    if (pendingLink.url) {
-                        window.open(pendingLink.url, '_blank', 'noopener,noreferrer');
-                    }
-                    window.closePasswordDialog();
-                    return;
-                }
-            }
-            
-            alert('密码错误，请重试');
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('passwordInput').focus();
-        };
+        // 按 category 分组，常用和工具两个模块
+        const groups = {};
+        SECTION_IDS.forEach(id => groups[id] = []);
 
-        // 受保护链接的点击处理
-        window.handleProtectedClick = function(event, url, password) {
-            event.stopPropagation();
-            
-            // 验证URL安全性
-            if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                alert('无效的链接地址');
-                return;
+        links.forEach(link => {
+            let cat = link.category || '默认';
+            if (cat === '默认' || cat === '收藏') cat = '常用';
+            if (groups[cat]) {
+                groups[cat].push(link);
+            } else {
+                groups['常用'].push(link);
             }
-            
-            pendingLink = { url, password };
-            document.getElementById('passwordPrompt').innerText = '此链接受密码保护';
-            document.getElementById('passwordOverlay').style.display = 'flex';
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('passwordInput').focus();
-        };
-
-        // 为备用链接添加点击事件
-        document.addEventListener('DOMContentLoaded', function() {
-            const spareLink = document.getElementById('spareLink');
-            if (spareLink) {
-                spareLink.onclick = function(event) {
-                    event.stopPropagation();
-                    const url = this.getAttribute('data-url');
-                    if (url && (url.startsWith('http://') || url.startsWith('https://'))) {
-                        window.open(url, '_blank', 'noopener,noreferrer');
-                    }
-                };
-            }
-            
-            // 密码输入框回车事件
-            const passwordInput = document.getElementById('passwordInput');
-            if (passwordInput) {
-                passwordInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        window.verifyPassword();
-                    }
-                });
-            }
-            
-            // 加载链接
-            loadLinksFromSupabase();
         });
 
-        // ===== 从 Supabase 加载链接 =====
-        async function loadLinksFromSupabase() {
-            const container = document.getElementById('dynamic-link-list');
-            if (!container) return;
+        let html = '';
+        SECTION_IDS.forEach((sectionId, idx) => {
+            const items = groups[sectionId];
+            const color = MODULE_COLORS[idx];
+            const isOpen = foldState[sectionId] !== false;
+            const count = items.length;
 
-            try {
-                const { data: links, error } = await supabaseClient
-                    .from('links')
-                    .select('*')
-                    .order('sort_order', { ascending: true });
-
-                if (error) throw error;
-
-                if (!links || links.length === 0) {
-                    container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #62748c;">📭 暂无链接，请去后台添加</div>';
-                    return;
-                }
-
-                container.innerHTML = '';
-
-                links.forEach(link => {
-                    const itemDiv = document.createElement('div');
-                    itemDiv.className = 'list-item';
-                    
-                    // 安全地设置属性
-                    const safeUrl = link.url && (link.url.startsWith('http://') || link.url.startsWith('https://')) 
-                        ? link.url 
-                        : '#';
-                    itemDiv.setAttribute('data-url', safeUrl);
-
-                    // 判断是否有密码
+            let linksHtml = '';
+            if (count === 0) {
+                linksHtml = `<div class="empty-module">暂无链接</div>`;
+            } else {
+                linksHtml = '<div class="link-grid">';
+                items.forEach(link => {
+                    const safeUrl = link.url && (link.url.startsWith('http://') || link.url.startsWith('https://')) ? link.url : '#';
                     const hasPassword = link.password && link.password.trim() !== '';
+                    const safeTitle = escapeHtml(link.title || '未命名');
 
-                    if (hasPassword) {
-                        // 使用安全的属性设置方式
-                        itemDiv.addEventListener('click', function(event) {
-                            window.handleProtectedClick(event, safeUrl, link.password);
-                        });
-                        itemDiv.classList.add('item-protected');
-                    } else {
-                        itemDiv.addEventListener('click', function(event) {
-                            window.handleLinkClick(event, this);
-                        });
-                    }
-
-                    // 图标处理 - 安全地插入SVG
                     let iconSvg = link.icon;
                     if (!iconSvg || !iconSvg.includes('<svg')) {
                         iconSvg = '<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2"/><polyline points="12 5 19 12 12 19" stroke="currentColor" fill="none"/></svg>';
                     } else {
-                        // 移除潜在的脚本
                         iconSvg = iconSvg.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
                     }
 
-                    // 安全地转义标题
-                    const safeTitle = escapeHtml(link.title || '未命名');
+                    const clickHandler = hasPassword
+                        ? `handleProtectedClick(event, '${escapeHtml(safeUrl)}', '${escapeHtml(link.password).replace(/'/g, "\\'")}')`
+                        : `handleLinkClick(event, this)`;
 
-                    // 构建内部HTML
-                    itemDiv.innerHTML = `
-                        <span class="item-icon">${iconSvg}</span>
-                        <span class="text-wrapper">
+                    linksHtml += `
+                        <div class="link-item" data-url="${escapeHtml(safeUrl)}" onclick="${clickHandler}">
+                            <span class="item-icon">${iconSvg}</span>
                             <span class="item-text">${safeTitle}</span>
-                            ${hasPassword ? '<span class="lock-badge">🔒 密码保护</span>' : ''}
-                        </span>
-                    `;
-
-                    container.appendChild(itemDiv);
+                            ${hasPassword ? '<span class="lock-badge">🔒</span>' : ''}
+                        </div>`;
                 });
-            } catch (error) {
-                console.error('加载失败:', error);
-                container.innerHTML = `<div style="text-align: center; padding: 2rem; color: #b91c1c;">❌ 加载失败: ${escapeHtml(error.message)}</div>`;
+                linksHtml += '</div>';
             }
-        }
-    })();
-</script>
 
-    <!-- 底部信息 — 管理字样已在最左边（通过flex-start和移除span背景实现） -->
-    <div class="footer-note">
-        <span>🔧 <a href="admin.html" style="color: #1f4172; text-decoration: none; border-bottom: 1px dotted;" rel="noopener noreferrer">管理</a></span>
-        <!-- 第二个span保持原样（可有可无，原代码只有一个span，但样式里为第二个span保留了背景。这里为了干净仅保留一个span） 
-             但原html中只有一个span，我们完全按照要求放到最左边，不需要额外元素 -->
-    </div>
-</div>
+            html += `
+                <div class="section" data-section="${sectionId}">
+                    <div class="section-header" onclick="toggleSection('${sectionId}')">
+                        <div class="section-dot" style="background: ${color};"></div>
+                        <span class="section-title">${escapeHtml(sectionId)}</span>
+                        <span class="section-count">${count} 个链接</span>
+                        <span class="arrow ${isOpen ? 'open' : ''}" id="arrow-${sectionId}">▶</span>
+                    </div>
+                    <div class="section-body ${isOpen ? 'open' : ''}" id="body-${sectionId}" style="${isOpen ? '' : 'max-height:0px'}">
+                        ${linksHtml}
+                    </div>
+                </div>`;
+        });
+
+        mainCard.innerHTML = html;
+
+        // 展开时重新计算 maxHeight
+        SECTION_IDS.forEach(sectionId => {
+            const body = document.getElementById('body-' + sectionId);
+            if (body && body.classList.contains('open')) {
+                body.style.maxHeight = body.scrollHeight + 'px';
+            }
+        });
+    }
+
+    // ===== 初始化 =====
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); window.verifyPassword(); }
+        });
+
+        loadLinks();
+    });
+
+    async function loadLinks() {
+        const mainCard = document.getElementById('mainCard');
+        try {
+            const { data: links, error } = await supabaseClient
+                .from('links')
+                .select('*')
+                .order('sort_order', { ascending: true });
+            if (error) throw error;
+            if (!links || links.length === 0) {
+                mainCard.innerHTML = '<div style="text-align:center;padding:2rem;color:#62748c;">📭 暂无链接，请去后台添加</div>';
+                return;
+            }
+            renderSections(links);
+        } catch (error) {
+            console.error('加载失败:', error);
+            mainCard.innerHTML = `<div style="text-align:center;padding:2rem;color:#b91c1c;">❌ 加载失败: ${escapeHtml(error.message)}</div>`;
+        }
+    }
+})();
+</script>
 </body>
 </html>
