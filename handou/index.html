@@ -376,6 +376,142 @@
         @media (min-width: 1024px) {
             .main-card { max-width: 720px; }
         }
+
+        /* ===== 右侧赞赏悬浮模块 ===== */
+        .donate-panel {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            z-index: 900;
+            width: 240px;
+            padding: 0.95rem;
+            background: rgba(240, 248, 255, 0.44);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            border-right: none;
+            border-radius: 24px 0 0 24px;
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            box-shadow: 0 12px 30px rgba(15, 38, 68, 0.14);
+            animation: fadeSlideIn 0.6s ease both;
+            animation-delay: 0.3s;
+            transition: transform 0.28s ease, box-shadow 0.28s ease;
+            overflow: hidden;
+        }
+        .donate-panel.collapsed {
+            transform: translate(176px, -50%);
+            cursor: pointer;
+        }
+        .donate-panel.collapsed:hover {
+            box-shadow: 0 16px 36px rgba(15, 38, 68, 0.18);
+        }
+        .donate-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.45rem;
+            margin-bottom: 0.65rem;
+            color: #1a2b3c;
+            font-size: 0.92rem;
+            font-weight: 650;
+            line-height: 1.2;
+            cursor: pointer;
+        }
+        .donate-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            min-width: 0;
+            white-space: nowrap;
+        }
+        .donate-panel-header svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+            flex-shrink: 0;
+        }
+        .donate-toggle-icon {
+            font-size: 0.9rem;
+            transition: transform 0.25s ease;
+            flex-shrink: 0;
+        }
+        .donate-panel.collapsed .donate-toggle-icon {
+            transform: rotate(180deg);
+        }
+        .donate-content {
+            max-height: 320px;
+            opacity: 1;
+            overflow: hidden;
+            transition: max-height 0.28s ease, opacity 0.2s ease, margin-top 0.2s ease;
+        }
+        .donate-panel.collapsed .donate-content {
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0;
+        }
+        .donate-panel-text {
+            color: #4a6382;
+            font-size: 0.72rem;
+            line-height: 1.45;
+            margin-bottom: 0.7rem;
+        }
+        .donate-qr {
+            display: block;
+            width: 190px;
+            height: 190px;
+            margin: 0 auto;
+            object-fit: contain;
+            border-radius: 8px;
+            border: 8px solid #ffffff;
+            box-shadow: 0 8px 24px rgba(15, 38, 68, 0.1);
+            background: #ffffff;
+            image-rendering: auto;
+        }
+
+        @media (max-width: 768px) {
+            .donate-panel {
+                top: auto;
+                bottom: 18px;
+                right: 12px;
+                transform: none;
+                width: 188px;
+                border-right: 1px solid rgba(255, 255, 255, 0.6);
+                border-radius: 20px;
+                padding: 0.75rem;
+            }
+            .donate-panel.collapsed {
+                transform: translateX(128px);
+            }
+            .donate-panel-header {
+                font-size: 0.85rem;
+                margin-bottom: 0;
+            }
+            .donate-panel-text {
+                font-size: 0.68rem;
+                margin-bottom: 0.55rem;
+            }
+            .donate-qr {
+                width: 148px;
+                height: 148px;
+                border-width: 6px;
+            }
+        }
+
+        /* 深色模式 - 赞赏 */
+        @media (prefers-color-scheme: dark) {
+            .donate-panel {
+                background: rgba(30, 45, 70, 0.45);
+                border-color: rgba(255,255,255,0.12);
+            }
+            .donate-panel-header { color: #d0dce8; }
+            .donate-panel-text { color: #8898a8; }
+            .donate-qr {
+                border-color: rgba(255,255,255,0.15);
+                background: rgba(20, 30, 50, 0.4);
+            }
+        }
     </style>
 </head>
 <body>
@@ -404,6 +540,21 @@
 
 <div class="footer-note">
     <a href="admin.html" rel="noopener noreferrer">管理</a>
+</div>
+
+<!-- 右侧赞赏悬浮模块 -->
+<div class="donate-panel collapsed" id="donatePanel" aria-label="打赏支持">
+    <div class="donate-panel-header" onclick="toggleDonatePanel()">
+        <div class="donate-panel-title">
+            <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span>打赏支持</span>
+        </div>
+        <span class="donate-toggle-icon">‹</span>
+    </div>
+    <div class="donate-content">
+        <div class="donate-panel-text">微信打开扫一扫</div>
+        <img class="donate-qr" src="https://1188188.xyz/handou/png.JPG" alt="微信打赏码">
+    </div>
 </div>
 
 <!-- 密码弹窗 -->
@@ -535,6 +686,13 @@
             window.open(url, '_blank', 'noopener,noreferrer');
         }
     };
+
+    window.toggleDonatePanel = function() {
+        const panel = document.getElementById('donatePanel');
+        if (!panel) return;
+        panel.classList.toggle('collapsed');
+    };
+
 
     // ===== 渲染 =====
     function renderSections(links) {
