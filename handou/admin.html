@@ -281,13 +281,6 @@
                 </table>
             </div>
             <div class="stats-section">
-                <h4>🌐 来源分析</h4>
-                <table class="stats-table">
-                    <thead><tr><th>来源</th><th>类型</th><th>点击量</th></tr></thead>
-                    <tbody id="statsSourceBody"><tr><td colspan="3" class="empty">加载中...</td></tr></tbody>
-                </table>
-            </div>
-            <div class="stats-section">
                 <h4>🕒 最近点击记录（20条）</h4>
                 <table class="stats-table">
                     <thead><tr><th>标题</th><th>URL</th><th>来源</th><th>IP</th><th>时间</th></tr></thead>
@@ -772,9 +765,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (e4) throw e4;
             const { data: recent, error: e5 } = await window.supabase.from('click_log').select('*').order('id', { ascending: false }).limit(20);
             if (e5) throw e5;
-            // 来源分析：拉取全部 referrer 分类统计（最近500条）
-            const { data: allLogs, error: e6 } = await window.supabase.from('click_log').select('referrer,url').limit(500);
-            if (e6) throw e6;
 
             cards.innerHTML = `
                 <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">累计点击</div></div>
@@ -800,36 +790,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${escapeHtml(r.referrer || '直接访问')}</td>
                     <td class="stat-ip">${escapeHtml(r.ip || '-')}</td>
                     <td>${fmtTime(r.clicked_at)}</td>
-                </tr>`).join('');
-
-            // 来源分类统计
-            const sourceBody = document.getElementById('statsSourceBody');
-            const srcMap = {};
-            (allLogs || []).forEach(l => {
-                const ref = l.referrer || '';
-                let type = '直接访问';
-                let label = '（无来源，直接输入/书签）';
-                if (ref) {
-                    try {
-                        const u = new URL(ref);
-                        const host = u.hostname.replace(/^www\./, '');
-                        if (/(google|baidu|bing|sogou|so\.com|sm\.cn|yandex|duckduckgo)/.test(host)) type = '搜索引擎';
-                        else if (host === '1188188.xyz' || host === 'handou.1188188.xyz' || host.endsWith('.1188188.xyz')) type = '站内';
-                        else type = '外部网站';
-                        label = host;
-                    } catch (e) { label = ref; type = '外部网站'; }
-                }
-                const key = type + '|' + label;
-                if (!srcMap[key]) srcMap[key] = { type, label, clicks: 0 };
-                srcMap[key].clicks++;
-            });
-            const srcList = Object.values(srcMap).sort((a, b) => b.clicks - a.clicks);
-            sourceBody.innerHTML = srcList.length === 0
-                ? '<tr><td colspan="3" class="empty">暂无数据</td></tr>'
-                : srcList.map(s => `<tr>
-                    <td>${escapeHtml(s.label)}</td>
-                    <td><span class="src-type" style="font-size:0.75rem;padding:2px 8px;border-radius:10px;background:${s.type==='搜索引擎'?'rgba(247,168,198,0.2)':s.type==='站内'?'rgba(126,207,207,0.2)':s.type==='外部网站'?'rgba(168,200,247,0.2)':'rgba(0,0,0,0.05)'};color:${s.type==='搜索引擎'?'#c2185b':s.type==='站内'?'#2e7d5b':s.type==='外部网站'?'#1a5276':'#666'};">${escapeHtml(s.type)}</span></td>
-                    <td>${s.clicks}</td>
                 </tr>`).join('');
             cards.dataset.loaded = '1';
         } catch (e) {
