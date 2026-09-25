@@ -211,7 +211,20 @@
         }
         .filter-chip:hover { background: rgba(255,255,255,0.8); }
         .filter-chip.active { background: #203d61; color: white; border-color: #203d61; }
-    </style>
+        .stats-panel { margin-top: 12px; }
+    .stats-cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .stat-card { flex: 1; min-width: 120px; background: rgba(126,207,207,0.08); border: 1px solid rgba(126,207,207,0.3); border-radius: 10px; padding: 14px; text-align: center; }
+    .stat-num { font-size: 1.6rem; font-weight: 700; color: #2e7d5b; }
+    .stat-label { font-size: 0.8rem; color: #7f8fa4; margin-top: 4px; }
+    .stats-section { margin-bottom: 16px; }
+    .stats-section h4 { margin: 8px 0; color: #2c3e50; font-size: 0.95rem; }
+    .stats-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .stats-table th, .stats-table td { padding: 7px 10px; border-bottom: 1px solid rgba(0,0,0,0.06); text-align: left; }
+    .stats-table th { color: #7f8fa4; font-weight: 600; background: rgba(0,0,0,0.02); }
+    .stats-table tr:hover td { background: rgba(126,207,207,0.06); }
+    .stats-table .empty { text-align: center; color: #aaa; padding: 14px; }
+    .stat-url { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+</style>
 </head>
 <body>
 <div class="admin-card">
@@ -245,6 +258,33 @@
         <div class="toolbar">
             <button onclick="window.showAddForm()">➕ 新增链接</button>
             <button class="secondary" onclick="window.refreshList()">🔄 刷新列表</button>
+            <button class="secondary" onclick="window.toggleStats()" id="statsToggleBtn">📊 访问量统计</button>
+        </div>
+
+        <!-- 访问统计 -->
+        <div id="statsPanel" class="stats-panel" style="display:none;">
+            <div class="stats-cards" id="statsCards"></div>
+            <div class="stats-section">
+                <h4>📈 每日点击趋势（近7天）</h4>
+                <table class="stats-table">
+                    <thead><tr><th>日期</th><th>点击量</th></tr></thead>
+                    <tbody id="statsDailyBody"><tr><td colspan="2" class="empty">加载中...</td></tr></tbody>
+                </table>
+            </div>
+            <div class="stats-section">
+                <h4>🔥 热门链接 TOP10</h4>
+                <table class="stats-table">
+                    <thead><tr><th>#</th><th>链接标题</th><th>点击量</th></tr></thead>
+                    <tbody id="statsTopBody"><tr><td colspan="3" class="empty">加载中...</td></tr></tbody>
+                </table>
+            </div>
+            <div class="stats-section">
+                <h4>🕒 最近点击记录（20条）</h4>
+                <table class="stats-table">
+                    <thead><tr><th>标题</th><th>URL</th><th>来源</th><th>时间</th></tr></thead>
+                    <tbody id="statsRecentBody"><tr><td colspan="4" class="empty">加载中...</td></tr></tbody>
+                </table>
+            </div>
         </div>
 
         <!-- 分类管理 -->
@@ -672,6 +712,75 @@ document.addEventListener('DOMContentLoaded', function() {
             await loadCategories();
             await loadLinks();
         } catch (e) { alert('❌ 删除失败: ' + e.message); }
+    };
+
+    // ===== 访问统计 =====
+    window.toggleStats = function() {
+        const panel = document.getElementById('statsPanel');
+        const btn = document.getElementById('statsToggleBtn');
+        const hidden = panel.style.display === 'none' || !panel.style.display;
+        if (hidden) {
+            panel.style.display = 'block';
+            btn.textContent = '📊 收起统计';
+            window.loadStats();
+        } else {
+            panel.style.display = 'none';
+            btn.textContent = '📊 访问量统计';
+        }
+    };
+
+    function fmtTime(iso) {
+        if (!iso) return '-';
+        const d = new Date(iso);
+        return d.toLocaleDateString('zh-CN') + ' ' + d.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    window.loadStats = async function() {
+        const cards = document.getElementById('statsCards');
+        cards.innerHTML = '<div class="loading">⏳ 加载统计中...</div>';
+        try {
+            // 累计 + 今日
+            const { count: total, error: e1 } = await window.supabase.from('click_log').select('*', { count: 'exact', head: true });
+            if (e1) throw e1;
+            const todayStart = new Date();
+            todayStart.setHours(0, 0, 0, 0);
+            const { count: today, error: e2 } = await window.supabase.from('click_log').select('*', { count: 'exact', head: true }).gte('clicked_at', todayStart.toISOString());
+            if (e2) throw e2;
+            // 每日趋势 / 热门 / 最近记录
+            const { data: daily, error: e3 } = await window.supabase.from('click_log_daily').select('*').limit(7);
+            if (e3) throw e3;
+            const { data: top, error: e4 } = await window.supabase.from('click_log_top').select('*').limit(10);
+            if (e4) throw e4;
+            const { data: recent, error: e5 } = await window.supabase.from('click_log').select('*').order('id', { ascending: false }).limit(20);
+            if (e5) throw e5;
+
+            cards.innerHTML = `
+                <div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">累计点击</div></div>
+                <div class="stat-card"><div class="stat-num">${today}</div><div class="stat-label">今日点击</div></div>
+                <div class="stat-card"><div class="stat-num">${(daily || []).length}</div><div class="stat-label">有记录天数</div></div>`;
+
+            const dailyBody = document.getElementById('statsDailyBody');
+            dailyBody.innerHTML = (daily || []).length === 0
+                ? '<tr><td colspan="2" class="empty">暂无数据</td></tr>'
+                : daily.map(d => `<tr><td>${escapeHtml(d.day || '-')}</td><td>${d.clicks}</td></tr>`).join('');
+
+            const topBody = document.getElementById('statsTopBody');
+            topBody.innerHTML = (top || []).length === 0
+                ? '<tr><td colspan="3" class="empty">暂无数据</td></tr>'
+                : top.map((t, i) => `<tr><td>${i + 1}</td><td>${escapeHtml(t.link_title || '未命名')}</td><td>${t.clicks}</td></tr>`).join('');
+
+            const recentBody = document.getElementById('statsRecentBody');
+            recentBody.innerHTML = (recent || []).length === 0
+                ? '<tr><td colspan="4" class="empty">暂无数据</td></tr>'
+                : recent.map(r => `<tr>
+                    <td>${escapeHtml(r.link_title || '未命名')}</td>
+                    <td class="stat-url" title="${escapeHtml(r.url || '')}">${escapeHtml(r.url || '-')}</td>
+                    <td>${escapeHtml(r.referrer || '-')}</td>
+                    <td>${fmtTime(r.clicked_at)}</td>
+                </tr>`).join('');
+        } catch (e) {
+            cards.innerHTML = `<div class="empty-state">❌ 加载统计失败: ${escapeHtml(e.message)}</div>`;
+        }
     };
 
     // ===== 启动 =====
