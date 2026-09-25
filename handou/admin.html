@@ -212,6 +212,7 @@
         .filter-chip:hover { background: rgba(255,255,255,0.8); }
         .filter-chip.active { background: #203d61; color: white; border-color: #203d61; }
         .stats-panel { margin-top: 12px; }
+    .stats-hint { font-size: 0.75rem; color: #7f8fa4; margin-bottom: 8px; }
     .stats-cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
     .stat-card { flex: 1; min-width: 120px; background: rgba(126,207,207,0.08); border: 1px solid rgba(126,207,207,0.3); border-radius: 10px; padding: 14px; text-align: center; }
     .stat-num { font-size: 1.6rem; font-weight: 700; color: #2e7d5b; }
@@ -263,6 +264,7 @@
 
         <!-- 访问统计 -->
         <div id="statsPanel" class="stats-panel" style="display:none;">
+            <div class="stats-hint">🔄 实时统计：每 5 秒自动刷新</div>
             <div class="stats-cards" id="statsCards"></div>
             <div class="stats-section">
                 <h4>📈 每日点击趋势（近7天）</h4>
@@ -715,6 +717,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     // ===== 访问统计 =====
+    let statsTimer = null;
     window.toggleStats = function() {
         const panel = document.getElementById('statsPanel');
         const btn = document.getElementById('statsToggleBtn');
@@ -723,9 +726,17 @@ document.addEventListener('DOMContentLoaded', function() {
             panel.style.display = 'block';
             btn.textContent = '📊 收起统计';
             window.loadStats();
+            // 面板展开期间自动刷新（5秒一次）
+            if (statsTimer) clearInterval(statsTimer);
+            statsTimer = setInterval(function() {
+                if (document.getElementById('statsPanel').style.display !== 'none') {
+                    window.loadStats();
+                }
+            }, 5000);
         } else {
             panel.style.display = 'none';
             btn.textContent = '📊 访问量统计';
+            if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
         }
     };
 
@@ -737,7 +748,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     window.loadStats = async function() {
         const cards = document.getElementById('statsCards');
-        cards.innerHTML = '<div class="loading">⏳ 加载统计中...</div>';
+        const firstLoad = !cards.dataset.loaded;
+        if (firstLoad) cards.innerHTML = '<div class="loading">⏳ 加载统计中...</div>';
         try {
             // 累计 + 今日
             const { count: total, error: e1 } = await window.supabase.from('click_log').select('*', { count: 'exact', head: true });
@@ -778,8 +790,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${escapeHtml(r.referrer || '-')}</td>
                     <td>${fmtTime(r.clicked_at)}</td>
                 </tr>`).join('');
+            cards.dataset.loaded = '1';
         } catch (e) {
-            cards.innerHTML = `<div class="empty-state">❌ 加载统计失败: ${escapeHtml(e.message)}</div>`;
+            if (firstLoad) cards.innerHTML = `<div class="empty-state">❌ 加载统计失败: ${escapeHtml(e.message)}</div>`;
         }
     };
 
