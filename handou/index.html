@@ -580,6 +580,23 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16eGp5dXBhZHNha2hzY2VpZHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDUzNjYsImV4cCI6MjA4NzkyMTM2Nn0.M4sPqp3-oYuw7JlRYmcqnCkLbRPvDYi7O6yMMdPXu88';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // ===== 点击统计（写入 Supabase click_log 表）=====
+    function trackClick(linkId, title, url) {
+        try {
+            supabaseClient
+                .from('click_log')
+                .insert({
+                    link_id: linkId || null,
+                    link_title: title || '',
+                    url: url || '',
+                    referrer: document.referrer || '',
+                    user_agent: navigator.userAgent || ''
+                })
+                .then(function() {})
+                .catch(function() {});
+        } catch (e) {}
+    }
+
     let pendingLink = { url: '', password: '' };
     let attemptCount = 0;
     const MAX_ATTEMPTS = 5;
@@ -742,7 +759,7 @@
                         : `handleLinkClick(event, this)`;
 
                     linksHtml += `
-                        <div class="link-item" data-url="${escapeHtml(safeUrl)}" onclick="${clickHandler}">
+                        <div class="link-item" data-url="${escapeHtml(safeUrl)}" data-link-id="${link.id || ''}" data-link-title="${safeTitle}" onclick="${clickHandler}">
                             <span class="item-icon">${iconSvg}</span>
                             <span class="item-text">${safeTitle}</span>
                             ${hasPassword ? '<span class="lock-badge">🔒</span>' : ''}
@@ -766,6 +783,13 @@
         });
 
         mainCard.innerHTML = html;
+
+        // 点击统计：事件委托（不干扰原有点击逻辑）
+        mainCard.querySelectorAll('.link-item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                trackClick(item.dataset.linkId, item.dataset.linkTitle, item.dataset.url);
+            });
+        });
 
         // 展开时重新计算 maxHeight
         SECTION_IDS.forEach(sectionId => {
