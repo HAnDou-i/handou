@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS public.click_log (
   url text,                -- 点击的目标地址
   referrer text,           -- 来源页面
   user_agent text,         -- 访客浏览器
+  ip text,                 -- 访客 IP（服务端自动记录）
   clicked_at timestamptz DEFAULT now()
 );
 
@@ -27,9 +28,76 @@ CREATE POLICY "anon_can_insert_click_log"
 GRANT INSERT ON public.click_log TO anon;
 
 -- ============================================
+-- 记录点击函数（自动读取访客真实 IP，前端伪造不了）
+-- 前端调用：supabase.rpc('record_click', {...})
+-- ============================================
+CREATE OR REPLACE FUNCTION public.record_click(
+  p_link_id bigint,
+  p_link_title text,
+  p_url text,
+  p_referrer text,
+  p_user_agent text
+) RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_ip text;
+  hdrs jsonb;
+BEGIN
+  BEGIN
+    hdrs := nullif(current_setting('request.headers', true), '')::jsonb;
+    -- 优先 CF-Connecting-IP（Cloudflare 透传的真实 IP），否则 X-Forwarded-For 取第一个
+    v_ip := hdrs->>'cf-connecting-ip';
+    IF v_ip IS NULL OR v_ip = '' THEN
+      v_ip := hdrs->>'x-forwarded-for';
+      IF v_ip IS NOT NULL AND position(',' in v_ip) > 0 THEN
+        v_ip := trim(split_part(v_ip, ',', 1));
+      END IF;
+    END IF;
+  EXCEPTION WHEN OTHERS THEN
+    v_ip := NULL;
+  END;
+
+  INSERT INTO public.click_log (link_id, link_title, url, referrer, user_agent, ip)
+  VALUES (p_link_id, p_link_title, p_url, p_referrer, p_user_agent, v_ip);
+END;
+$$;
+
+-- 授权匿名调用（页面用 anon key 调）
+GRANT EXECUTE ON FUNCTION public.record_click TO anon;
+
+-- ============================================
+-- 管理员读权限（登录后查看统计）
+-- ============================================
+CREATE POLICY "authenticated_can_read_click_log"
+  ON public.click_log FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- 每日点击统计视图
+CREATE OR REPLACE VIEW public.click_log_daily AS
+SELECT date_trunc('day', clicked_at)::date AS day, count(*) AS clicks
+FROM public.click_log
+GROUP BY 1 ORDER BY 1 DESC;
+
+-- 热门链接 TOP 视图
+CREATE OR REPLACE VIEW public.click_log_top AS
+SELECT link_title, count(*) AS clicks, max(clicked_at) AS last_clicked
+FROM public.click_log
+WHERE link_title IS NOT NULL AND link_title <> ''
+GROUP BY 1 ORDER BY 2 DESC LIMIT 20;
+
+-- 授权登录管理员可查视图
+GRANT SELECT ON public.click_log_daily, public.click_log_top TO authenticated;
+
+-- ============================================
 -- 查询示例（用 secret key 查，或直接在 Dashboard 跑）：
 --   最近 7 天每天点击量：
 --   SELECT date_trunc('day', clicked_at) AS day, count(*) FROM public.click_log GROUP BY 1 ORDER BY 1 DESC;
 --   点击最多的链接：
 --   SELECT link_title, count(*) FROM public.click_log GROUP BY 1 ORDER BY 2 DESC;
+--   按 IP 统计：
+--   SELECT ip, count(*) FROM public.click_log GROUP BY 1 ORDER BY 2 DESC;
 -- ============================================

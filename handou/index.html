@@ -580,17 +580,16 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im16eGp5dXBhZHNha2hzY2VpZHZtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzNDUzNjYsImV4cCI6MjA4NzkyMTM2Nn0.M4sPqp3-oYuw7JlRYmcqnCkLbRPvDYi7O6yMMdPXu88';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ===== 点击统计（写入 Supabase click_log 表）=====
+    // ===== 点击统计（写入 Supabase click_log 表，服务端记录 IP）=====
     function trackClick(linkId, title, url) {
         try {
             supabaseClient
-                .from('click_log')
-                .insert({
-                    link_id: linkId || null,
-                    link_title: title || '',
-                    url: url || '',
-                    referrer: document.referrer || '',
-                    user_agent: navigator.userAgent || ''
+                .rpc('record_click', {
+                    p_link_id: linkId || null,
+                    p_link_title: title || '',
+                    p_url: url || '',
+                    p_referrer: document.referrer || '',
+                    p_user_agent: navigator.userAgent || ''
                 })
                 .then(function() {})
                 .catch(function() {});

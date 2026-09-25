@@ -290,8 +290,8 @@
             <div class="stats-section">
                 <h4>🕒 最近点击记录（20条）</h4>
                 <table class="stats-table">
-                    <thead><tr><th>标题</th><th>URL</th><th>来源</th><th>时间</th></tr></thead>
-                    <tbody id="statsRecentBody"><tr><td colspan="4" class="empty">加载中...</td></tr></tbody>
+                    <thead><tr><th>标题</th><th>URL</th><th>来源</th><th>IP</th><th>时间</th></tr></thead>
+                    <tbody id="statsRecentBody"><tr><td colspan="5" class="empty">加载中...</td></tr></tbody>
                 </table>
             </div>
         </div>
@@ -793,11 +793,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const recentBody = document.getElementById('statsRecentBody');
             recentBody.innerHTML = (recent || []).length === 0
-                ? '<tr><td colspan="4" class="empty">暂无数据</td></tr>'
+                ? '<tr><td colspan="5" class="empty">暂无数据</td></tr>'
                 : recent.map(r => `<tr>
                     <td>${escapeHtml(r.link_title || '未命名')}</td>
                     <td class="stat-url" title="${escapeHtml(r.url || '')}">${escapeHtml(r.url || '-')}</td>
                     <td>${escapeHtml(r.referrer || '直接访问')}</td>
+                    <td class="stat-ip">${escapeHtml(r.ip || '-')}</td>
                     <td>${fmtTime(r.clicked_at)}</td>
                 </tr>`).join('');
 
