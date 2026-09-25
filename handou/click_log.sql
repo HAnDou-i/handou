@@ -30,6 +30,7 @@ GRANT INSERT ON public.click_log TO anon;
 -- ============================================
 -- 记录点击函数（自动读取访客真实 IP，前端伪造不了）
 -- 前端调用：supabase.rpc('record_click', {...})
+-- 含免清理：每次点击顺带删除 30 天前旧记录
 -- ============================================
 CREATE OR REPLACE FUNCTION public.record_click(
   p_link_id bigint,
@@ -62,6 +63,9 @@ BEGIN
 
   INSERT INTO public.click_log (link_id, link_title, url, referrer, user_agent, ip)
   VALUES (p_link_id, p_link_title, p_url, p_referrer, p_user_agent, v_ip);
+
+  -- 兜底清理：删除 30 天前的旧记录（每次点击顺带执行）
+  DELETE FROM public.click_log WHERE clicked_at < now() - interval '30 days';
 END;
 $$;
 
@@ -91,6 +95,18 @@ GROUP BY 1 ORDER BY 2 DESC LIMIT 20;
 
 -- 授权登录管理员可查视图
 GRANT SELECT ON public.click_log_daily, public.click_log_top TO authenticated;
+
+-- ============================================
+-- 定期清理（可选，与函数内兜底清理互补）：
+-- 启用 pg_cron，每天凌晨 3:00 删除 30 天前的记录
+-- ============================================
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+SELECT cron.schedule(
+  'cleanup_click_log_30d',      -- 任务名
+  '0 3 * * *',                  -- 每天 03:00
+  $$DELETE FROM public.click_log WHERE clicked_at < now() - interval '30 days'$$
+);
 
 -- ============================================
 -- 查询示例（用 secret key 查，或直接在 Dashboard 跑）：
