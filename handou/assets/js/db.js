@@ -22,17 +22,35 @@
 
   async function req(path, opts) {
     const o = opts || {};
-    const res = await fetch(CFG.url + path, {
-      method: o.method || 'GET',
-      headers: baseHeaders(o.headers),
-      body: o.body ? JSON.stringify(o.body) : undefined
-    });
+    /* 15 秒没响应就放弃：否则请求一挂，按钮会永远停在「登录中…」 */
+    const ctl = new AbortController();
+    const timer = setTimeout(function () { ctl.abort(); }, 15000);
+    let res;
+    try {
+      res = await fetch(CFG.url + path, {
+        method: o.method || 'GET',
+        headers: baseHeaders(o.headers),
+        body: o.body ? JSON.stringify(o.body) : undefined,
+        signal: ctl.signal
+      });
+    } catch (e) {
+      clearTimeout(timer);
+      const err = new Error(e && e.name === 'AbortError' ? '请求超时（15 秒）' : '网络不通，检查一下代理或网络');
+      err.status = 0;
+      throw err;
+    }
+    clearTimeout(timer);
     const text = await res.text();
     let data = null;
     try { data = text ? JSON.parse(text) : null; } catch (e) { data = text; }
     if (!res.ok) {
-      const err = new Error((data && (data.message || data.error || data.hint)) || ('HTTP ' + res.status));
+      /* GoTrue 用 msg + error_code，PostgREST 用 message —— 两种都要兼容，
+         否则界面上只剩一句「HTTP 400」，看不出到底是口令错还是别的问题 */
+      const msg = (data && (data.msg || data.message || data.error_description ||
+                            data.error || data.hint)) || ('HTTP ' + res.status);
+      const err = new Error(msg);
       err.status = res.status;
+      err.code = (data && (data.error_code || data.code)) || '';
       err.detail = data;
       throw err;
     }

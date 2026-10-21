@@ -13,6 +13,10 @@ html {
   background: var(--paper);
 }
 
+/* [hidden] 必须真的不显示：.auth 之类给了 display 的类会盖掉浏览器默认样式，
+   导致 hidden=true 的元素仍然占位（登录成功后台嵌在登录卡下面，就是这个问题） */
+[hidden] { display: none !important; }
+
 body {
   position: relative;
   margin: 0;

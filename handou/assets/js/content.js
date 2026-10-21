@@ -50,21 +50,15 @@
   }
 
   function svcCard(s, base) {
-    const url = s.href ? (base || '') + s.href : '';
+    let url = s.href || '';
+    /* 填 movie.html 这种就按当前页补前缀；填 services/… 或 http 开头则原样用 */
+    if (url && !/^(https?:|\/|\.\/|services\/)/i.test(url)) url = base + url;
     const tag = url ? 'a' : 'div';
     return '<' + tag + ' class="svcard"' + (url ? ' href="' + esc(url) + '"' : '') + '>' +
-      '<span class="svcard__top">' +
-        '<span class="svcard__ic">' + iconSvg(s.icon) + '</span>' +
-        '<span class="svcard__h">' +
-          '<span class="svcard__t">' + esc(s.title) + '</span>' +
-          (s.badge ? '<span class="svbadge">' + esc(s.badge) + '</span>' : '') +
-        '</span>' +
-      '</span>' +
-      (s.desc ? '<span class="svcard__d">' + esc(s.desc) + '</span>' : '') +
-      '<span class="svcard__f">' +
-        '<span class="svcard__price">' + esc(s.price) +
-          (s.priceUnit ? '<small>' + esc(s.priceUnit) + '</small>' : '') + '</span>' +
-        (url ? '<span class="svcard__go">查看详情' + ARROW + '</span>' : '') +
+      '<span class="svcard__ic">' + iconSvg(s.icon) + '</span>' +
+      '<span class="svcard__h">' +
+        '<span class="svcard__t">' + esc(s.title) + '</span>' +
+        (s.badge ? '<span class="svbadge">' + esc(s.badge) + '</span>' : '') +
       '</span>' +
     '</' + tag + '>';
   }

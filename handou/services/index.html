@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>技术服务 · 啊游的杂货铺</title>
-<meta name="description" content="私人影音库搭建 ¥299、音乐库整理、NAS 部署与运维。远程交付，只做技术。">
+<meta name="description" content="影音库搭建、音乐库整理、NAS 部署与运维。远程交付，只做技术。">
 <link rel="stylesheet" href="../assets/css/tokens.css">
 <link rel="stylesheet" href="../assets/css/base.css">
 <link rel="stylesheet" href="../assets/css/components.css">
@@ -15,14 +15,6 @@
   .page-head h1 { margin: 14px 0 0; font-size: clamp(26px, 3.4vw, 34px);
                   font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
   .page-head .sub { margin-top: 12px; max-width: 36em; }
-
-  .price-lead {
-    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
-    margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line);
-  }
-  .price-lead b { font-family: var(--mono); font-size: 30px; font-weight: 600;
-                  letter-spacing: -.02em; color: var(--accent-deep); }
-  .price-lead span { font-size: 13.5px; color: var(--ink-3); }
 
   /* 流程 */
   .steps {
@@ -83,17 +75,10 @@
 <header class="topbar">
   <div class="wrap topbar__in">
     <a class="brand" href="../index.html">
-      <span class="brand__mark">手</span>
+      <span class="brand__mark">铺</span>
       <span>啊游的杂货铺</span>
       <span class="brand__sub">handou</span>
     </a>
-    <nav class="nav">
-      <a href="../index.html">首页</a>
-      <a href="../nav/index.html">常用入口</a>
-      <a href="index.html" aria-current="page">技术服务</a>
-      <a href="../share/index.html">分享</a>
-      <a href="../admin/index.html" class="hide-sm">后台</a>
-    </nav>
     <span class="topbar__meta" data-clock>--:--:--</span>
   </div>
 </header>
@@ -101,71 +86,37 @@
 <main>
   <div class="wrap page-head">
     <span class="k">02 — Services</span>
-    <h1>技术服务</h1>
+    <h1>技术服务支持</h1>
     <p class="t-body sub">
       三项服务，都能远程做完，做完你自己能接手。不卖订阅，不做驻场，不上门。
-      影音库明码 ¥299，另两项看过情况再报价。
+      先聊清楚要做什么，再约时间。
     </p>
-    <div class="price-lead">
-      <b>¥299</b>
-      <span>影音库搭建一次做完 · 当天可用 · 装完有问题照样能问</span>
-    </div>
   </div>
 
   <!-- ===== 服务清单 ===== -->
   <section class="wrap">
     <div class="svcards" id="svcList">
       <a class="svcard" href="movie.html">
-        <span class="svcard__top">
-          <span class="svcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2.2"/><path d="M7.4 4.5v15M16.6 4.5v15M3 9.6h4.4M3 14.4h4.4M16.6 9.6H21M16.6 14.4H21"/></svg></span>
-          <span class="svcard__h">
-            <span class="svcard__t">私人影音库搭建</span>
-            <span class="svbadge">热门</span>
-          </span>
-        </span>
-        <span class="svcard__d">装服务端、刮出海报墙、打通电视和手机，做完打开就能看。</span>
-        <span class="svcard__f">
-          <span class="svcard__price">¥299<small>一次性 · 远程交付</small></span>
-          <span class="svcard__go">查看详情
-            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m6.4 3.4 4.6 4.6-4.6 4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
+        <span class="svcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2.2"/><path d="M7.4 4.5v15M16.6 4.5v15M3 9.6h4.4M3 14.4h4.4M16.6 9.6H21M16.6 14.4H21"/></svg></span>
+        <span class="svcard__h">
+          <span class="svcard__t">私人影音库搭建</span>
+          <span class="svbadge">热门</span>
         </span>
       </a>
-
       <a class="svcard" href="music.html">
-        <span class="svcard__top">
-          <span class="svcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 17.5V6.2l10-2v11.3"/><ellipse cx="6.5" cy="17.8" rx="2.6" ry="2.3"/><ellipse cx="16.5" cy="15.6" rx="2.6" ry="2.3"/></svg></span>
-          <span class="svcard__h">
-            <span class="svcard__t">音乐库整理服务</span>
-            <span class="svbadge">音质党</span>
-          </span>
-        </span>
-        <span class="svcard__d">补标签、配封面、去重名，整成一张手机上直接能听的库。</span>
-        <span class="svcard__f">
-          <span class="svcard__price">按规模<small>看过清单再报价</small></span>
-          <span class="svcard__go">查看详情
-            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m6.4 3.4 4.6 4.6-4.6 4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
+        <span class="svcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 17.5V6.2l10-2v11.3"/><ellipse cx="6.5" cy="17.8" rx="2.6" ry="2.3"/><ellipse cx="16.5" cy="15.6" rx="2.6" ry="2.3"/></svg></span>
+        <span class="svcard__h">
+          <span class="svcard__t">音乐库整理服务</span>
+          <span class="svbadge">音质党</span>
         </span>
       </a>
-
       <a class="svcard" href="nas.html">
-        <span class="svcard__top">
-          <span class="svcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.2" y="4" width="17.6" height="6.4" rx="1.8"/><rect x="3.2" y="13.6" width="17.6" height="6.4" rx="1.8"/><path d="M6.8 7.2h.02M6.8 16.8h.02M11 7.2h4.6M11 16.8h4.6"/></svg></span>
-          <span class="svcard__h">
-            <span class="svcard__t">NAS 远程运维</span>
-            <span class="svbadge">省心</span>
-          </span>
-        </span>
-        <span class="svcard__d">新机安装、外网访问、自动备份、容器环境，出事时有人能问。</span>
-        <span class="svcard__f">
-          <span class="svcard__price">按次<small>一次一结，不绑订阅</small></span>
-          <span class="svcard__go">查看详情
-            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m6.4 3.4 4.6 4.6-4.6 4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </span>
+        <span class="svcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.2" y="4" width="17.6" height="6.4" rx="1.8"/><rect x="3.2" y="13.6" width="17.6" height="6.4" rx="1.8"/><path d="M6.8 7.2h.02M6.8 16.8h.02M11 7.2h4.6M11 16.8h4.6"/></svg></span>
+        <span class="svcard__h">
+          <span class="svcard__t">NAS 远程运维</span>
+          <span class="svbadge">省心</span>
         </span>
       </a>
-
     </div>
 
     <div class="notice" style="margin-top:24px">
@@ -217,10 +168,10 @@
     </div>
     <div class="faq">
       <details open>
-        <summary>¥299 具体包含什么？后面还会加钱吗？</summary>
+        <summary>具体包含什么？后面还会加钱吗？</summary>
         <div class="a">
           服务端安装配置、媒体库目录规划、刮削规则调好、手机 / 电视 / 平板至少三端打通、
-          字幕与播放参数调通。一次付清，过程里不追加。
+          字幕与播放参数调通。说好一次就是一次，过程里不追加。
           中途想再加一套完全独立的系统，算另一件事，会先报价再决定做不做。
         </div>
       </details>

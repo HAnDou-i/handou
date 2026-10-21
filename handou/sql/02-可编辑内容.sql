@@ -47,12 +47,8 @@ select * from (values
 ) as v
 where not exists (select 1 from public.services);
 
-insert into public.shares (group_name, title, descr, url, sort_order)
-select * from (values
-  ('资源', '飞牛影视使用帮助', '官方文档，卡住了先翻这里', 'https://www.kdocs.cn/l/cke5hsufd3Gb', 1),
-  ('资源', '夸克网盘 1TB 获取教程', '含资源汇总，按需自取', 'https://pan.quark.cn/s/5f8aae6a025a', 2)
-) as v
-where not exists (select 1 from public.shares);
+-- 分享表不塞种子：空着就空着，等你在后台自己加，
+-- 免得页面凭空冒出一个你没建过的分组。
 
 
 -- ---------- 权限 ----------

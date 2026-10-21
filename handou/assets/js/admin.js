@@ -13,55 +13,45 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   };
 
-  const loginView = $('#loginView');
-  const appView = $('#appView');
   let LINKS = [];
   let editingId = null;
 
-  /* ---------------- 视图切换 ---------------- */
-  function showLogin() {
-    loginView.hidden = false;
-    appView.hidden = true;
-  }
-  function showApp(user) {
-    loginView.hidden = true;
-    appView.hidden = false;
-    $('#whoami').textContent = user && user.email ? user.email : '';
-    loadLinks();
+  /* 没登录就别停在这页，回登录页 */
+  const SESS = DB.currentUser();
+  if (!SESS || !SESS.access_token) {
+    location.replace('index.html');
   }
 
-  /* ---------------- 登录 ---------------- */
-  $('#loginForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const email = $('#emailInput').value.trim();
-    const pass = $('#passInput').value;
-    const btn = $('#loginBtn');
-    const err = $('#loginErr');
+  /* ---------------- 退出 ---------------- */
+  const logoutBtn = $('#logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async function () {
+      await DB.signOut();
+      location.replace('index.html');
+    });
+  }
 
-    if (!email || !pass) { err.textContent = '邮箱和密码都要填'; return; }
+  /* ---------------- 数据库连接状态 ---------------- */
+  async function probeDB() {
+    const boxes = [document.getElementById('connLogin'), document.getElementById('connApp')]
+      .filter(Boolean);
+    const set = function (state, text) {
+      boxes.forEach(function (b) {
+        if (state) b.dataset.s = state; else delete b.dataset.s;
+        const tx = b.querySelector('.conn__tx');
+        if (tx) tx.textContent = text;
+      });
+    };
 
-    btn.disabled = true;
-    btn.textContent = '登录中…';
-    err.textContent = '';
-
+    set('', '检查数据库连接…');
     try {
-      const s = await DB.signIn(email, pass);
-      showApp(s);
-    } catch (ex) {
-      err.textContent = /Invalid|invalid/i.test(ex.message)
-        ? '邮箱或密码不对'
-        : '登录失败：' + ex.message;
-    } finally {
-      btn.disabled = false;
-      btn.textContent = '登录';
+      const rows = await DB.listLinks();
+      set('ok', '数据库已连接 · ' + (rows || []).length + ' 条链接');
+    } catch (e) {
+      const why = e.status === 404 ? '表不存在' : (e.message || '未知错误');
+      set('fail', '数据库连接失败：' + why);
     }
-  });
-
-  $('#logoutBtn').addEventListener('click', async function () {
-    await DB.signOut();
-    showLogin();
-    window.toast('已退出');
-  });
+  }
 
   /* ---------------- 标签页 ---------------- */
   const PANES = {
@@ -305,19 +295,15 @@
       cols: [
         { k: 'title', t: '标题' },
         { k: 'badge', t: '角标', w: '96px' },
-        { k: 'price', t: '价格', w: '130px' },
-        { k: 'href', t: '详情页', w: '140px' }
+        { k: 'href', t: '跳到哪个页面', w: '200px' }
       ],
       fields: [
-        { k: 'title', label: '标题', ph: '私人影音库搭建', req: true },
+        { k: 'title', label: '卡片标题', ph: '私人影音库搭建', req: true },
         { k: 'badge', label: '角标（可空）', ph: '热门 / 音质党 / 省心' },
-        { k: 'descr', label: '一句话描述', type: 'textarea', ph: '装服务端、刮出海报墙、打通电视和手机…' },
-        { k: 'price', label: '价格', ph: '¥299 / 按规模 / 按次' },
-        { k: 'price_unit', label: '价格小字', ph: '一次性 · 远程交付' },
-        { k: 'href', label: '详情页地址', ph: 'movie.html · 可留空' },
         { k: 'icon', label: '图标', type: 'select', opts: [
           ['film', '胶片'], ['music', '音符'], ['server', '机箱'], ['tool', '工具'], ['box', '箱子']
         ] },
+        { k: 'href', label: '点开跳转到', ph: 'movie.html 或 https://…', req: true },
         { k: 'sort_order', label: '排序（小的在前）', type: 'number', ph: '1' }
       ]
     },
@@ -478,8 +464,13 @@
     }
   });
 
+
   /* ---------------- 启动 ---------------- */
-  const s = DB.currentUser();
-  if (s && s.access_token) showApp(s);
-  else showLogin();
+  if (SESS && SESS.access_token) {
+    const who = $('#whoami');
+    if (who) who.textContent = SESS.email || '';
+    probeDB();
+    loadLinks();
+    window.scrollTo(0, 0);
+  }
 })();

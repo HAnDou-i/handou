@@ -56,19 +56,9 @@ window.SITE = {
   ],
 
   /* 分享：乱七八糟什么都放 */
-  shares: [
-    {
-      group: '资源',
-      items: [
-        { title: '飞牛影视使用帮助', desc: '官方文档，卡住了先翻这里', url: 'https://www.kdocs.cn/l/cke5hsufd3Gb' },
-        { title: '夸克网盘 1TB 获取教程', desc: '含资源汇总，按需自取', url: 'https://pan.quark.cn/s/5f8aae6a025a' }
-      ]
-    },
-    {
-      group: '工具',
-      items: []
-    }
-  ],
+  /* 分享没有兜底内容：库里没有就显示空。
+     以前这里塞了「资源」两条，网络出问题时页面会凭空冒出一个分组。 */
+  shares: [],
 
   /* 联系方式 */
   contact: {
