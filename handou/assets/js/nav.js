@@ -85,8 +85,12 @@
              '<rect x="4.5" y="10.5" width="15" height="10" rx="2.4"/>' +
              '<path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7"/></svg>';
 
+  /* 只挡 javascript: 这类；站内相对路径（services/movie.html）要放行 */
   function safeUrl(u) {
-    return u && /^https?:\/\//i.test(u) ? u : '#';
+    if (!u) return '#';
+    const t = String(u).trim();
+    if (!t || /^javascript:/i.test(t)) return '#';
+    return t;
   }
 
   /* ---------- 分组 ---------- */
@@ -129,6 +133,8 @@
     let html = '';
     GROUPS.forEach(function (g, i) {
       const items = buckets[g.name];
+      /* 空分组不上前台（后台「分组」里仍然看得到） */
+      if (!items.length && !q) return;
       /* 搜索时强制展开，否则按记忆状态 */
       const open = q ? true : fold[g.name] !== false;
 
@@ -197,7 +203,14 @@
         askPass(id, title, url);
       } else {
         DB.logClick(id, title, url);
-        if (url && url !== '#') window.open(url, '_blank', 'noopener,noreferrer');
+        if (url && url !== '#') {
+          /* 站外开新标签，站内直接跳（不然每点一次就多一个标签页） */
+          if (/^https?:\/\//i.test(url)) {
+            window.open(url, '_blank', 'noopener,noreferrer');
+          } else {
+            location.href = url;
+          }
+        }
       }
     }
   });

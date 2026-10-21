@@ -474,7 +474,7 @@
     b.addEventListener('click', function () { openContent(b.dataset.add, null); });
   });
 
-  ['services', 'shares'].forEach(function (kind) {
+  ['services', 'groups', 'shares'].forEach(function (kind) {
     const tbody = $('#rows-' + kind);
     if (!tbody) return;
     tbody.addEventListener('click', async function (e) {
@@ -540,7 +540,7 @@
       if (!el) continue;
       let v = el.value.trim();
       if (f.req && !v) { $('#cErr').textContent = f.label + '不能空'; return; }
-      if (f.type === 'number') v = v === '' ? 0 : Number(v);
+      if (f.type === 'number') v = v === '' ? null : Number(v);   // 空着就是没设，别塞 0（0 会排到最前）
       row[f.k] = v === '' ? null : v;
     }
     const btn = $('#cSave');

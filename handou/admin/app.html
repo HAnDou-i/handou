@@ -39,9 +39,7 @@
 
   <div class="tabs">
     <button data-tab="links" data-on="true">链接管理</button>
-    <button data-tab="services" data-on="false">技术服务支持</button>
     <button data-tab="groups" data-on="false">分组</button>
-    <button data-tab="shares" data-on="false">分享</button>
     <button data-tab="stats" data-on="false">点击统计</button>
   </div>
 
@@ -63,24 +61,6 @@
     </div>
   </div>
 
-  <!-- 技术服务 -->
-  <div class="pane" id="paneServices" hidden>
-    <div class="toolbar">
-      <button class="btn btn--solid btn--sm" data-add="services">新增服务</button>
-      <span class="hint">首页和技术服务页都读这张表，改完刷新即可。</span>
-      <span class="n" id="svcTotal">—</span>
-    </div>
-    <div style="overflow-x:auto">
-      <table class="tbl">
-        <thead>
-          <tr><th style="width:52px">ID</th><th>标题</th><th style="width:96px">角标</th>
-              <th style="width:130px">价格</th><th style="width:140px">详情页</th><th style="width:96px"></th></tr>
-        </thead>
-        <tbody id="rows-services"><tr><td colspan="6" class="empty">正在读取…</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
   <!-- 分组（常用入口的分类） -->
   <div class="pane" id="paneGroups" hidden>
     <div class="toolbar">
@@ -95,24 +75,6 @@
               <th style="width:110px">颜色</th><th style="width:70px">排序</th><th style="width:96px"></th></tr>
         </thead>
         <tbody id="rows-groups"><tr><td colspan="6" class="empty">正在读取…</td></tr></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- 分享 -->
-  <div class="pane" id="paneShares" hidden>
-    <div class="toolbar">
-      <button class="btn btn--solid btn--sm" data-add="shares">新增分享</button>
-      <span class="hint">分组名相同的会自动并成一组。</span>
-      <span class="n" id="shrTotal">—</span>
-    </div>
-    <div style="overflow-x:auto">
-      <table class="tbl">
-        <thead>
-          <tr><th style="width:52px">ID</th><th style="width:96px">分组</th><th>标题</th>
-              <th>说明</th><th style="width:200px">地址</th><th style="width:96px"></th></tr>
-        </thead>
-        <tbody id="rows-shares"><tr><td colspan="6" class="empty">正在读取…</td></tr></tbody>
       </table>
     </div>
   </div>
