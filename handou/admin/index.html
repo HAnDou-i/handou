@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>后台管理 · 啊游的杂货铺</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<style>
+  /* ---------- 登录 ---------- */
+  .auth {
+    min-height: calc(100vh - 58px);
+    display: grid; place-items: center;
+    padding: 40px 20px 80px;
+  }
+  .auth__box {
+    width: 100%; max-width: 372px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-l);
+    padding: 30px 26px 26px;
+    box-shadow: var(--sh-2);
+  }
+  .auth__box .k {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--ink-4);
+  }
+  .auth__box h1 { font-size: 21px; font-weight: 600; margin-top: 10px; letter-spacing: -.015em; }
+  .auth__box p { font-size: 13px; color: var(--ink-3); margin-top: 7px; line-height: 1.65; }
+  .auth__form { margin-top: 22px; }
+  .auth__err { min-height: 20px; margin-top: 10px; font-size: 12.5px; color: var(--lock); }
+  .auth__back { display: block; margin-top: 18px; text-align: center; font-size: 12.5px; color: var(--ink-4); }
+  .auth__back:hover { color: var(--accent-deep); }
+
+  /* ---------- 后台主体 ---------- */
+  .adm-head {
+    display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap;
+    padding-block: clamp(30px, 4vw, 46px) 22px;
+  }
+  .adm-head h1 { font-size: 26px; font-weight: 600; letter-spacing: -.02em; }
+  .adm-head .who {
+    font-family: var(--mono); font-size: 11.5px; color: var(--ink-4);
+    letter-spacing: .06em; margin-left: auto;
+  }
+  .adm-head .acts { display: flex; gap: 8px; }
+
+  .pane { padding-bottom: 40px; }
+  .toolbar {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .toolbar .n {
+    font-family: var(--mono); font-size: 11.5px; color: var(--ink-4);
+    letter-spacing: .06em; margin-left: auto;
+  }
+
+  .toolbar .hint { font-size: 12px; color: var(--ink-4); }
+  .tbl .sm { font-size: 12px; color: var(--ink-3); }
+  .tbl .ell { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ---------- 统计 ---------- */
+  .statgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .statcard {
+    border: 1px solid var(--line); border-radius: var(--r-m);
+    background: var(--card); padding: 18px;
+  }
+  .statcard .k { font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+                 text-transform: uppercase; color: var(--ink-4); }
+  .statcard .v { font-size: 30px; font-weight: 600; letter-spacing: -.02em;
+                 margin-top: 8px; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .statcard .d { font-size: 12px; color: var(--ink-4); margin-top: 4px; }
+
+  .bars { display: flex; flex-direction: column; gap: 10px; }
+  .bar { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+  .bar .bl { flex: 0 0 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+             color: var(--ink-2); }
+  .bar .bt { flex: 1; height: 7px; background: var(--paper-sunk); border-radius: 99px; overflow: hidden; }
+  .bar .bt i { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
+  .bar .bn { flex: 0 0 40px; text-align: right; font-family: var(--mono);
+             font-size: 12px; color: var(--ink-3); }
+
+  @media (max-width: 620px) {
+    .statgrid { grid-template-columns: 1fr; }
+    .bar .bl { flex-basis: 110px; }
+    .adm-head .who { margin-left: 0; width: 100%; order: 3; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar__in">
+    <a class="brand" href="../index.html">
+      <span class="brand__mark">手</span>
+      <span>啊游的杂货铺</span>
+      <span class="brand__sub">后台</span>
+    </a>
+    <nav class="nav">
+      <a href="../index.html">首页</a>
+      <a href="../nav/index.html">常用入口</a>
+      <a href="../services/index.html">技术服务</a>
+      <a href="../share/index.html">分享</a>
+      <a href="index.html" aria-current="page">后台</a>
+    </nav>
+    <span class="topbar__meta" data-clock>--:--:--</span>
+  </div>
+</header>
+
+<!-- ===================== 未登录 ===================== -->
+<div id="loginView" class="auth">
+  <div class="auth__box">
+    <span class="k">Admin</span>
+    <h1>后台管理</h1>
+    <p>只有登录后才能改链接、看点击统计。不用登记，直接用账号进。</p>
+
+    <form class="auth__form" id="loginForm" autocomplete="on">
+      <label class="field">
+        <span>邮箱</span>
+        <input class="inp" id="emailInput" type="email" autocomplete="username"
+               placeholder="you@example.com" required>
+      </label>
+      <label class="field">
+        <span>密码</span>
+        <input class="inp" id="passInput" type="password" autocomplete="current-password"
+               placeholder="••••••••" required>
+      </label>
+      <div class="auth__err" id="loginErr"></div>
+      <button class="btn btn--solid btn--block" id="loginBtn" type="submit" style="margin-top:6px">登录</button>
+    </form>
+
+    <a class="auth__back" href="../index.html">返回首页</a>
+  </div>
+</div>
+
+<!-- ===================== 已登录 ===================== -->
+<div id="appView" class="wrap sheet" hidden>
+  <div class="adm-head">
+    <h1>后台管理</h1>
+    <span class="who" id="whoami"></span>
+    <div class="acts">
+      <a class="btn btn--ghost btn--sm" href="../nav/index.html" target="_blank" rel="noopener">看前台</a>
+      <button class="btn btn--ghost btn--sm" id="logoutBtn">退出</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button data-tab="links" data-on="true">链接管理</button>
+    <button data-tab="services" data-on="false">技术服务</button>
+    <button data-tab="shares" data-on="false">分享</button>
+    <button data-tab="stats" data-on="false">点击统计</button>
+  </div>
+
+  <!-- 链接管理 -->
+  <div class="pane" id="paneLinks">
+    <div class="toolbar">
+      <button class="btn btn--solid btn--sm" id="addBtn">新增链接</button>
+      <span class="n" id="linkTotal">—</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr><th style="width:52px">ID</th><th>标题</th><th>地址</th><th style="width:130px">分类</th><th style="width:110px"></th></tr>
+        </thead>
+        <tbody id="linkRows">
+          <tr><td colspan="5" class="empty">正在读取…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 技术服务 -->
+  <div class="pane" id="paneServices" hidden>
+    <div class="toolbar">
+      <button class="btn btn--solid btn--sm" data-add="services">新增服务</button>
+      <span class="hint">首页和技术服务页都读这张表，改完刷新即可。</span>
+      <span class="n" id="svcTotal">—</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr><th style="width:52px">ID</th><th>标题</th><th style="width:96px">角标</th>
+              <th style="width:130px">价格</th><th style="width:140px">详情页</th><th style="width:96px"></th></tr>
+        </thead>
+        <tbody id="rows-services"><tr><td colspan="6" class="empty">正在读取…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 分享 -->
+  <div class="pane" id="paneShares" hidden>
+    <div class="toolbar">
+      <button class="btn btn--solid btn--sm" data-add="shares">新增分享</button>
+      <span class="hint">分组名相同的会自动并成一组。</span>
+      <span class="n" id="shrTotal">—</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="tbl">
+        <thead>
+          <tr><th style="width:52px">ID</th><th style="width:96px">分组</th><th>标题</th>
+              <th>说明</th><th style="width:200px">地址</th><th style="width:96px"></th></tr>
+        </thead>
+        <tbody id="rows-shares"><tr><td colspan="6" class="empty">正在读取…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 点击统计 -->
+  <div class="pane" id="paneStats" hidden>
+    <div id="statsBox"></div>
+  </div>
+</div>
+
+<!-- ===================== 编辑弹层 ===================== -->
+<div class="modal" id="editModal" data-open="false" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+  <div class="modal__box" style="max-width:440px">
+    <div class="modal__t" id="editTitle">改链接</div>
+    <div class="modal__d">分类决定它出现在常用入口的哪一组。</div>
+
+    <div style="margin-top:18px">
+      <label class="field">
+        <span>标题</span>
+        <input class="inp" id="fTitle" type="text" placeholder="比如：飞牛安装文件下载">
+      </label>
+      <label class="field">
+        <span>地址</span>
+        <input class="inp" id="fUrl" type="url" placeholder="https://...">
+      </label>
+      <label class="field">
+        <span>分类</span>
+        <select class="inp" id="fCat">
+          <option value="常用">常用</option>
+          <option value="其他">其他</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>口令（可空）</span>
+        <input class="inp" id="fPass" type="text" autocomplete="off" placeholder="可留空，表示不需要口令">
+      </label>
+      <div style="min-height:20px;margin-top:8px;font-size:12.5px;color:var(--lock)" id="editErr"></div>
+    </div>
+
+    <div class="modal__acts">
+      <button class="btn btn--ghost" data-close>取消</button>
+      <button class="btn btn--ghost" id="clearPassBtn" title="把这条的口令删掉">清口令</button>
+      <button class="btn btn--solid" id="saveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="cModal" data-open="false" role="dialog" aria-modal="true" aria-labelledby="cTitle">
+  <div class="modal__box" style="max-width:480px">
+    <div class="modal__t" id="cTitle">改内容</div>
+    <div class="modal__d" id="cDesc">改完保存，前台刷新就能看到。</div>
+    <form id="cForm" style="margin-top:16px"><div id="cFields"></div>
+      <div style="min-height:20px;margin-top:6px;font-size:12.5px;color:var(--lock)" id="cErr"></div>
+      <div class="modal__acts">
+        <button class="btn btn--ghost" type="button" data-close>取消</button>
+        <button class="btn btn--solid" id="cSave" type="submit">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/db.js"></script>
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/admin.js"></script>
+</body>
+</html>

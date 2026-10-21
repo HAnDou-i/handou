@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>常用入口 · 啊游的杂货铺</title>
+<meta name="description" content="飞牛 NAS 安装资料、教程、交流群与常用站点。">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<style>
+  .page-head { padding-block: clamp(40px, 6vw, 68px) 26px; }
+  .page-head .k {
+    display: block; font-family: var(--mono); font-size: 11.5px;
+    letter-spacing: .16em; text-transform: uppercase; color: var(--ink-4);
+  }
+  .page-head h1 { margin: 14px 0 0; font-size: clamp(26px, 3.4vw, 34px);
+                  font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
+  .page-head .sub { margin-top: 12px; max-width: 34em; }
+  .page-tools {
+    display: flex; align-items: center; gap: 16px;
+    margin: 26px 0 0; flex-wrap: wrap;
+  }
+  .page-tools .search { flex: 1 1 260px; max-width: 340px; }
+  .page-tools .meta {
+    font-family: var(--mono); font-size: 11.5px; color: var(--ink-4);
+    letter-spacing: .06em; margin-left: auto;
+  }
+  .nav-body { padding-bottom: 8px; }
+  .nav-note { margin-top: 30px; }
+  @media (max-width: 560px) {
+    .page-tools .meta { margin-left: 0; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar__in">
+    <a class="brand" href="../index.html">
+      <span class="brand__mark">手</span>
+      <span>啊游的杂货铺</span>
+      <span class="brand__sub">handou</span>
+    </a>
+    <nav class="nav">
+      <a href="../index.html">首页</a>
+      <a href="index.html" aria-current="page">常用入口</a>
+      <a href="../services/index.html">技术服务</a>
+      <a href="../share/index.html">分享</a>
+      <a href="../admin/index.html" class="hide-sm">后台</a>
+    </nav>
+    <span class="topbar__meta" data-clock>--:--:--</span>
+  </div>
+</header>
+
+<main>
+  <div class="wrap page-head">
+    <span class="k">01 — Links</span>
+    <h1>常用入口</h1>
+    <p class="t-body sub">
+      装飞牛前后真正会点开的东西。按用途分两组，点标题左边那块就能折叠。
+      带「口令」标记的入口，输入正确口令后才会打开。
+    </p>
+
+    <div class="page-tools">
+      <label class="search">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+          <circle cx="6.6" cy="6.6" r="4.4" stroke="currentColor" stroke-width="1.5"/>
+          <path d="m10.2 10.2 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <input id="navSearch" type="search" placeholder="搜标题、网址或分类" autocomplete="off">
+      </label>
+      <span class="meta" id="navCount">正在读取…</span>
+    </div>
+  </div>
+
+  <div class="wrap nav-body">
+    <div id="navList"></div>
+
+    <div class="notice nav-note">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M8 5.2v3.6M8 10.9v.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span>口令不给猜、也不写在网页里。忘了口令的话，在群里问一声。</span>
+    </div>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <div>
+      啊游的杂货铺 · <span data-year></span><br>
+      只提供技术部署与运维服务，不提供、不存储、不传播任何影视或音乐内容。
+    </div>
+    <div class="r">
+      1188188.xyz<br>
+      <a href="../index.html">返回首页</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== 口令浮层 ===== -->
+<div class="modal" id="passModal" data-open="false" role="dialog" aria-modal="true" aria-labelledby="passTitle">
+  <div class="modal__box">
+    <div class="modal__t" id="passTitle">受口令保护</div>
+    <div class="modal__d" id="passDesc">这个入口需要口令才能打开。</div>
+    <div style="margin-top:16px">
+      <label class="field">
+        <span>口令</span>
+        <input class="inp" id="passInput" type="password" autocomplete="off" placeholder="输入后回车">
+      </label>
+      <div style="min-height:20px;margin-top:8px;font-size:12.5px;color:var(--lock)" id="passErr"></div>
+    </div>
+    <div class="modal__acts">
+      <button class="btn btn--ghost" data-close>取消</button>
+      <button class="btn btn--solid" id="passOk">打开</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/db.js"></script>
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/nav.js"></script>
+</body>
+</html>

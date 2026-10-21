@@ -1,0 +1,86 @@
+/* ============================================================
+   tokens.css — 全部设计变量。改颜色只改这一页。
+   配色沿用原站 v6：青蓝 → 粉紫渐变底 + 深藏青文字 + 半透明白卡
+   ============================================================ */
+
+:root {
+  /* 底色渐变（取自原站 style.css 的 bg-1 ~ bg-4） */
+  --bg-1: #8DD7D1;   /* 青 */
+  --bg-2: #CBD7E8;   /* 灰蓝 */
+  --bg-3: #F2BFD8;   /* 粉 */
+  --bg-4: #F6D7EA;   /* 浅粉 */
+  --glow-c: rgba(126, 224, 221, .80);   /* 左上青光 */
+  --glow-p: rgba(255, 176, 211, .78);   /* 右下粉光 */
+
+  /* 纸面 / 卡片（半透明，让渐变透上来） */
+  --paper:      #E8F1F6;
+  --paper-sunk: rgba(36, 52, 77, .055);
+  --card:       rgba(255, 255, 255, .78);
+  --card-hi:    rgba(255, 255, 255, .95);
+  --card-solid: #FFFFFF;
+
+  /* 墨色（文字，原站 text-main / soft / dim 体系加深一档保对比度） */
+  --ink:   #152438;
+  --ink-2: #33455D;
+  --ink-3: #4C5E78;
+  --ink-4: #57677F;
+
+  /* 线（原来是白色 42%，改成淡藏青，浅底更稳） */
+  --line:   rgba(36, 52, 77, .13);
+  --line-2: rgba(36, 52, 77, .24);
+
+  /* 主色：原站 accent #334c72 */
+  --accent:      #334C72;
+  --accent-deep: #24344D;
+  --accent-wash: rgba(63, 88, 128, .10);
+  --accent-line: rgba(63, 88, 128, .28);
+
+  /* 语义色 */
+  --lock:  #8A4A72;                  /* 带口令：玫紫，呼应粉侧 */
+  --lock-w: rgba(138, 74, 114, .10);
+  --live:  #2C7A6B;                  /* 在线：青，呼应青侧 */
+
+  /* 三个板块的色带：青 / 藏青 / 玫 */
+  --band-1: #3FA3AE;
+  --band-2: #334C72;
+  --band-3: #C4679A;
+
+  /* 圆角 */
+  --r-s: 8px;
+  --r-m: 13px;
+  --r-l: 20px;
+  --r-pill: 999px;
+
+  /* 阴影：带一点紫，跟原站 shadow 一个血统 */
+  --sh-1: 0 1px 2px rgba(60, 44, 92, .05);
+  --sh-2: 0 10px 30px -14px rgba(60, 44, 92, .22);
+  --sh-3: 0 26px 64px -22px rgba(60, 44, 92, .34);
+
+  /* 玻璃 */
+  --glass: blur(14px) saturate(150%);
+
+  /* 字体 */
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Hiragino Sans GB", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono",
+          Consolas, "Liberation Mono", monospace;
+
+  /* 版心 */
+  --w-page: 1120px;
+  --w-text: 640px;
+  --pad-x: 28px;
+
+  /* 节奏 */
+  --gap-1: 4px;
+  --gap-2: 8px;
+  --gap-3: 12px;
+  --gap-4: 18px;
+  --gap-5: 28px;
+  --gap-6: 44px;
+  --gap-7: 72px;
+  --gap-8: 112px;
+}
+
+@media (max-width: 720px) {
+  :root { --pad-x: 18px; --gap-7: 48px; --gap-8: 64px; }
+}

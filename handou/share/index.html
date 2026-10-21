@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>乱七八糟 · 啊游的杂货铺</title>
+<meta name="description" content="公开渠道能白拿的资料、顺手的小工具，随缘更新。">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<style>
+  .page-head { padding-block: clamp(40px, 6vw, 68px) 30px; }
+  .page-head .k { display: block; font-family: var(--mono); font-size: 11.5px;
+                  letter-spacing: .16em; text-transform: uppercase; color: var(--ink-4); }
+  .page-head h1 { margin: 14px 0 0; font-size: clamp(26px, 3.4vw, 34px);
+                  font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
+  .page-head .sub { margin-top: 12px; max-width: 36em; }
+
+  .sblock + .sblock { margin-top: var(--gap-7); }
+
+  /* 分享条目：一行一个，比卡片省地方，也更容易扫 */
+  .slist { border-top: 1px solid var(--line); }
+  .sitem {
+    display: flex; align-items: center; gap: 16px;
+    padding: 16px 2px;
+    border-bottom: 1px solid var(--line);
+    transition: background .15s;
+  }
+  .sitem:hover { background: rgba(255,255,255,.72); }
+  .sitem:hover .sitem__t { color: var(--accent-deep); }
+  .sitem__t {
+    display: block;
+    font-size: 15px; font-weight: 500; letter-spacing: -.005em;
+    transition: color .15s;
+  }
+  .sitem__d { display: block; font-size: 13px; color: var(--ink-3); margin-top: 4px; line-height: 1.6; }
+  .sitem__x { min-width: 0; flex: 1; }
+  .sitem__go {
+    flex: 0 0 auto; color: var(--ink-4);
+    transition: color .15s, transform .15s;
+  }
+  .sitem:hover .sitem__go { color: var(--accent); transform: translateX(3px); }
+
+  .sblank {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 16px 18px;
+    border: 1px dashed var(--line-2);
+    border-radius: var(--r-s);
+    color: var(--ink-4);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .sblank b { color: var(--ink-3); font-weight: 500; flex: 0 0 auto; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar__in">
+    <a class="brand" href="../index.html">
+      <span class="brand__mark">手</span>
+      <span>啊游的杂货铺</span>
+      <span class="brand__sub">handou</span>
+    </a>
+    <nav class="nav">
+      <a href="../index.html">首页</a>
+      <a href="../nav/index.html">常用入口</a>
+      <a href="../services/index.html">技术服务</a>
+      <a href="index.html" aria-current="page">分享</a>
+      <a href="../admin/index.html" class="hide-sm">后台</a>
+    </nav>
+    <span class="topbar__meta" data-clock>--:--:--</span>
+  </div>
+</header>
+
+<main>
+  <div class="wrap page-head">
+    <span class="k">03 — Misc</span>
+    <h1>乱七八糟</h1>
+    <p class="t-body sub">
+      这里没有分类学。看到什么有意思、什么自己用着顺手，就往这儿丢。
+      大部分是公开渠道能白拿的，少数是别人分享给我、确认过可以往外传的。
+    </p>
+  </div>
+
+  <div class="wrap" id="shareRoot"></div>
+
+  <div class="wrap" style="margin-top:var(--gap-7)">
+    <div class="notice">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <circle cx="8" cy="8" r="6.4" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M8 5.2v3.6M8 10.9v.1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span>所有条目只贴原始出处，不转存、不打包、不设下载门槛。有版权要求的请自己确认使用范围，拿去做商用别来找我。</span>
+    </div>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <div>
+      啊游的杂货铺 · <span data-year></span><br>
+      只提供技术部署与运维服务，不提供、不存储、不传播任何影视或音乐内容。
+    </div>
+    <div class="r">
+      1188188.xyz<br>
+      <a href="../index.html">返回首页</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/db.js"></script>
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/content.js"></script>
+<script>
+  /* 条目在后台「分享」里加，这里只负责排 */
+  CONTENT.mountShares(document.getElementById('shareRoot'));
+</script>
+</body>
+</html>

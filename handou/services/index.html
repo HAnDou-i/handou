@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>技术服务 · 啊游的杂货铺</title>
+<meta name="description" content="私人影音库搭建 ¥299、音乐库整理、NAS 部署与运维。远程交付，只做技术。">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+<style>
+  .page-head { padding-block: clamp(40px, 6vw, 68px) 22px; }
+  .page-head .k { display: block; font-family: var(--mono); font-size: 11.5px;
+                  letter-spacing: .16em; text-transform: uppercase; color: var(--ink-4); }
+  .page-head h1 { margin: 14px 0 0; font-size: clamp(26px, 3.4vw, 34px);
+                  font-weight: 600; letter-spacing: -.02em; line-height: 1.25; }
+  .page-head .sub { margin-top: 12px; max-width: 36em; }
+
+  .price-lead {
+    display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+    margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line);
+  }
+  .price-lead b { font-family: var(--mono); font-size: 30px; font-weight: 600;
+                  letter-spacing: -.02em; color: var(--accent-deep); }
+  .price-lead span { font-size: 13.5px; color: var(--ink-3); }
+
+  /* 流程 */
+  .steps {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1px; background: var(--line);
+    border: 1px solid var(--line); border-radius: var(--r-m); overflow: hidden;
+    margin-top: 18px;
+  }
+  .step { background: var(--card); padding: 20px 18px 22px; }
+  .step b { display: block; font-family: var(--mono); font-size: 11px;
+            letter-spacing: .14em; color: var(--accent); margin-bottom: 9px; }
+  .step h3 { font-size: 14.5px; font-weight: 600; }
+  .step p { font-size: 13px; color: var(--ink-3); line-height: 1.65; margin-top: 5px; }
+
+  /* FAQ */
+  .faq { border-top: 1px solid var(--line); }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary {
+    list-style: none; cursor: pointer; padding: 16px 2px;
+    display: flex; align-items: center; gap: 12px;
+    font-size: 14.5px; font-weight: 500;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after {
+    content: "+"; margin-left: auto; font-family: var(--mono);
+    font-size: 16px; color: var(--ink-4); line-height: 1;
+    transition: transform .2s;
+  }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq .a { padding: 0 2px 18px; font-size: 13.5px; line-height: 1.8; color: var(--ink-2); max-width: 44em; }
+
+  /* CTA */
+  .cta {
+    margin-top: var(--gap-7);
+    border: 1px solid var(--line);
+    border-radius: var(--r-l);
+    padding: 32px 30px;
+    display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+    background: var(--card);
+  }
+  .cta h2 { font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
+  .cta p { font-size: 13.5px; color: var(--ink-3); margin-top: 6px; }
+  .cta .acts { margin-left: auto; display: flex; gap: 10px; flex-wrap: wrap; }
+
+  @media (max-width: 860px) {
+    .steps { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .steps { grid-template-columns: 1fr; }
+    .cta { padding: 24px 20px; }
+    .cta .acts { margin-left: 0; width: 100%; }
+    .cta .acts .btn { flex: 1; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar__in">
+    <a class="brand" href="../index.html">
+      <span class="brand__mark">手</span>
+      <span>啊游的杂货铺</span>
+      <span class="brand__sub">handou</span>
+    </a>
+    <nav class="nav">
+      <a href="../index.html">首页</a>
+      <a href="../nav/index.html">常用入口</a>
+      <a href="index.html" aria-current="page">技术服务</a>
+      <a href="../share/index.html">分享</a>
+      <a href="../admin/index.html" class="hide-sm">后台</a>
+    </nav>
+    <span class="topbar__meta" data-clock>--:--:--</span>
+  </div>
+</header>
+
+<main>
+  <div class="wrap page-head">
+    <span class="k">02 — Services</span>
+    <h1>技术服务</h1>
+    <p class="t-body sub">
+      三项服务，都能远程做完，做完你自己能接手。不卖订阅，不做驻场，不上门。
+      影音库明码 ¥299，另两项看过情况再报价。
+    </p>
+    <div class="price-lead">
+      <b>¥299</b>
+      <span>影音库搭建一次做完 · 当天可用 · 装完有问题照样能问</span>
+    </div>
+  </div>
+
+  <!-- ===== 服务清单 ===== -->
+  <section class="wrap">
+    <div class="svcards" id="svcList">
+      <a class="svcard" href="movie.html">
+        <span class="svcard__top">
+          <span class="svcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2.2"/><path d="M7.4 4.5v15M16.6 4.5v15M3 9.6h4.4M3 14.4h4.4M16.6 9.6H21M16.6 14.4H21"/></svg></span>
+          <span class="svcard__h">
+            <span class="svcard__t">私人影音库搭建</span>
+            <span class="svbadge">热门</span>
+          </span>
+        </span>
+        <span class="svcard__d">装服务端、刮出海报墙、打通电视和手机，做完打开就能看。</span>
+        <span class="svcard__f">
+          <span class="svcard__price">¥299<small>一次性 · 远程交付</small></span>
+          <span class="svcard__go">查看详情
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m6.4 3.4 4.6 4.6-4.6 4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </span>
+      </a>
+
+      <a class="svcard" href="music.html">
+        <span class="svcard__top">
+          <span class="svcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 17.5V6.2l10-2v11.3"/><ellipse cx="6.5" cy="17.8" rx="2.6" ry="2.3"/><ellipse cx="16.5" cy="15.6" rx="2.6" ry="2.3"/></svg></span>
+          <span class="svcard__h">
+            <span class="svcard__t">音乐库整理服务</span>
+            <span class="svbadge">音质党</span>
+          </span>
+        </span>
+        <span class="svcard__d">补标签、配封面、去重名，整成一张手机上直接能听的库。</span>
+        <span class="svcard__f">
+          <span class="svcard__price">按规模<small>看过清单再报价</small></span>
+          <span class="svcard__go">查看详情
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m6.4 3.4 4.6 4.6-4.6 4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </span>
+      </a>
+
+      <a class="svcard" href="nas.html">
+        <span class="svcard__top">
+          <span class="svcard__ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.2" y="4" width="17.6" height="6.4" rx="1.8"/><rect x="3.2" y="13.6" width="17.6" height="6.4" rx="1.8"/><path d="M6.8 7.2h.02M6.8 16.8h.02M11 7.2h4.6M11 16.8h4.6"/></svg></span>
+          <span class="svcard__h">
+            <span class="svcard__t">NAS 远程运维</span>
+            <span class="svbadge">省心</span>
+          </span>
+        </span>
+        <span class="svcard__d">新机安装、外网访问、自动备份、容器环境，出事时有人能问。</span>
+        <span class="svcard__f">
+          <span class="svcard__price">按次<small>一次一结，不绑订阅</small></span>
+          <span class="svcard__go">查看详情
+            <svg viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m6.4 3.4 4.6 4.6-4.6 4.6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+        </span>
+      </a>
+
+    </div>
+
+    <div class="notice" style="margin-top:24px">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M8 1.8 14 4.6v4c0 3.1-2.4 5.2-6 6.1-3.6-.9-6-3-6-6.1v-4L8 1.8Z"
+              stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+        <path d="m5.7 8 1.7 1.7L10.5 6.6" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span>只提供技术部署与运维服务，不提供、不存储、不传播任何影视或音乐内容。影音资料请自行准备并确认来源合法。</span>
+    </div>
+  </section>
+
+  <!-- ===== 流程 ===== -->
+  <section class="wrap mt-7">
+    <div class="sec-head">
+      <h2>怎么做</h2>
+      <span class="n">四步</span>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <b>STEP 01</b>
+        <h3>先说清情况</h3>
+        <p>机器型号、硬盘数量、现在卡在哪一步。发几张截图就够了。</p>
+      </div>
+      <div class="step">
+        <b>STEP 02</b>
+        <h3>报个价</h3>
+        <p>能一次做完的，直接给数字；说不准的，给范围并说明为什么会浮动。</p>
+      </div>
+      <div class="step">
+        <b>STEP 03</b>
+        <h3>远程动手</h3>
+        <p>用你方便的工具连过去。全程你在旁边看着，随时能叫停。</p>
+      </div>
+      <div class="step">
+        <b>STEP 04</b>
+        <h3>交接</h3>
+        <p>留一份记录：改了什么、怎么恢复、以后想自己加东西从哪改。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section class="wrap mt-7">
+    <div class="sec-head">
+      <h2>可能会问的</h2>
+      <span class="n">常见问题</span>
+    </div>
+    <div class="faq">
+      <details open>
+        <summary>¥299 具体包含什么？后面还会加钱吗？</summary>
+        <div class="a">
+          服务端安装配置、媒体库目录规划、刮削规则调好、手机 / 电视 / 平板至少三端打通、
+          字幕与播放参数调通。一次付清，过程里不追加。
+          中途想再加一套完全独立的系统，算另一件事，会先报价再决定做不做。
+        </div>
+      </details>
+      <details>
+        <summary>配置很低能装吗？</summary>
+        <div class="a">
+          看用途。只播放、不转码，对配置要求很低，老机器也跑得动；
+          要在服务端实时转码才吃 CPU 和显卡。把型号发我，我直接说行不行。
+        </div>
+      </details>
+      <details>
+        <summary>要把账号密码给你吗？</summary>
+        <div class="a">
+          只需要临时的远程控制权限，不需要你任何网盘、视频站或影音账号。
+          做完你可以立刻改密码，或者直接结束会话。
+        </div>
+      </details>
+      <details>
+        <summary>弄坏了怎么办？</summary>
+        <div class="a">
+          动手前先备份关键配置，出问题按备份退回；退不回去的这一单不收钱。
+          数据都在你自己盘上，我全程不碰你的媒体文件。
+        </div>
+      </details>
+      <details>
+        <summary>只远程，不上门？</summary>
+        <div class="a">
+          对，只远程。所以机器得能联网、能开远程工具。
+          如果网络本身还没通，先把宽带和光猫搞定，或者先问我怎么说。
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section class="wrap">
+    <div class="cta">
+      <div>
+        <h2>想装一台，或者已经装了但用不顺</h2>
+        <p>进群问一句就行，看到会回。问问题不用先付钱。</p>
+      </div>
+      <div class="acts">
+        <a class="btn btn--solid" href="https://qm.qq.com/cgi-bin/qm/qr?k=br7ATsw792ezfqZFH-s-3Eb2jklcH_F_"
+           target="_blank" rel="noopener noreferrer">进群问问</a>
+        <a class="btn btn--ghost" href="../nav/index.html">先看安装资料</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <div>
+      啊游的杂货铺 · <span data-year></span><br>
+      只提供技术部署与运维服务，不提供、不存储、不传播任何影视或音乐内容。
+    </div>
+    <div class="r">
+      1188188.xyz<br>
+      <a href="../index.html">返回首页</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/db.js"></script>
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/content.js"></script>
+<script>
+  CONTENT.mountServices(document.getElementById('svcList'), { base: '' });
+</script>
+</body>
+</html>

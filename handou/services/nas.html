@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NAS 部署与运维 · 技术服务</title>
+<meta name="description" content="新机安装、内网穿透、自动备份、Docker 环境。按单次结算，不绑订阅。">
+<link rel="stylesheet" href="../assets/css/tokens.css">
+<link rel="stylesheet" href="../assets/css/base.css">
+<link rel="stylesheet" href="../assets/css/components.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar__in">
+    <a class="brand" href="../index.html">
+      <span class="brand__mark">手</span>
+      <span>啊游的杂货铺</span>
+      <span class="brand__sub">handou</span>
+    </a>
+    <nav class="nav">
+      <a href="../index.html">首页</a>
+      <a href="../nav/index.html">常用入口</a>
+      <a href="index.html" aria-current="page">技术服务</a>
+      <a href="../share/index.html">分享</a>
+      <a href="../admin/index.html" class="hide-sm">后台</a>
+    </nav>
+    <span class="topbar__meta" data-clock>--:--:--</span>
+  </div>
+</header>
+
+<main>
+  <nav class="wrap crumb">
+    <a href="index.html">技术服务</a><i>/</i><span>NAS 部署与运维</span>
+  </nav>
+
+  <div class="wrap sp-head">
+    <h1>NAS 部署与运维</h1>
+    <p class="lead">
+      刚买的机器不知道从哪下手、想在外面连回家里、怕盘挂了没备份、容器起不来……
+      这类事按次做，一次一结，不绑订阅。
+    </p>
+  </div>
+
+  <div class="wrap sp-body">
+    <div>
+      <section class="sp-sec">
+        <h2>常接的几类活</h2>
+        <ul class="checklist">
+          <li><span><b>新机安装。</b>装系统到能用：存储池、共享目录、账户、手机端走一遍。</span></li>
+          <li><span><b>外网访问。</b>内网穿透、反向代理、域名与证书，在外面也能连回家。</span></li>
+          <li><span><b>自动备份。</b>定策略：从哪备到哪、多久一次、留几份、怎么验证能恢复。</span></li>
+          <li><span><b>容器环境。</b>装好管理面板、常用容器配起来，出问题知道去哪看日志。</span></li>
+          <li><span><b>救火。</b>装完却坏了、卡住、连不上、空间莫名满了。先诊断，能修就修。</span></li>
+        </ul>
+      </section>
+
+      <section class="sp-sec">
+        <h2>我的做法</h2>
+        <ul class="checklist steplist">
+          <li><span><b>先诊断再动手。</b>问题没搞清之前不瞎改设置，尤其不碰存储池。</span></li>
+          <li><span><b>能不改就不改。</b>你原来能用的东西尽量留着，只动必须动的地方。</span></li>
+          <li><span><b>每步都说一声。</b>远程的时候你能看到我在做什么，不偷偷操作。</span></li>
+          <li><span><b>留下记录。</b>做完给一份说明：改了什么、怎么退回去。</span></li>
+        </ul>
+      </section>
+
+      <section class="sp-sec">
+        <h2>不接的活</h2>
+        <ul class="neglist">
+          <li>
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round"/></svg>
+            <span><b>数据恢复。</b>盘坏了、阵列崩了，请找专业数据恢复，我不碰。</span>
+          </li>
+          <li>
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round"/></svg>
+            <span>上门、搬机器、硬件改装。</span>
+          </li>
+          <li>
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round"/></svg>
+            <span>企业级集群、虚拟化平台、多人权限体系，这个量级不该由一个人接。</span>
+          </li>
+          <li>
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="currentColor" stroke-width="1.6"
+                    stroke-linecap="round"/></svg>
+            <span>长期驻场代维。可以按次叫，但不做「包月随叫随到」。</span>
+          </li>
+        </ul>
+      </section>
+
+      <section class="sp-sec">
+        <h2>什么情况适合叫我</h2>
+        <ul class="checklist plainlist">
+          <li><span>折腾一晚上没搞成，想有人直接告诉你怎么弄。</span></li>
+          <li><span>怕自己动坏了，想有人在旁边看着做。</span></li>
+          <li><span>装是装上了，但一直不稳，不知道问题出在哪。</span></li>
+        </ul>
+      </section>
+    </div>
+
+    <aside class="sp-side">
+      <div class="k">Price</div>
+      <div class="price" style="font-size:24px">按单次<small>一次一结 · 不绑订阅</small></div>
+      <dl>
+        <div><dt>方式</dt><dd>远程，全程你在旁边</dd></div>
+        <div><dt>时长</dt><dd>看具体事，先说明再报价</dd></div>
+        <div><dt>结算</dt><dd>做完一次一结</dd></div>
+        <div><dt>报价</dt><dd>能定死的直接给数字</dd></div>
+      </dl>
+      <div class="acts">
+        <a class="btn btn--solid btn--block"
+           href="https://qm.qq.com/cgi-bin/qm/qr?k=br7ATsw792ezfqZFH-s-3Eb2jklcH_F_"
+           target="_blank" rel="noopener noreferrer">说说你卡在哪</a>
+        <a class="btn btn--ghost btn--block" href="index.html">看其他服务</a>
+      </div>
+      <p class="tip">
+        诊断不收钱。看完发现这活接不了，我会直说，并给你指个方向。
+      </p>
+    </aside>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="wrap foot__in">
+    <div>
+      啊游的杂货铺 · <span data-year></span><br>
+      只提供技术部署与运维服务，不提供、不存储、不传播任何影视或音乐内容。
+    </div>
+    <div class="r">
+      1188188.xyz<br>
+      <a href="../index.html">返回首页</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../assets/js/config.js"></script>
+<script src="../assets/js/common.js"></script>
+</body>
+</html>
