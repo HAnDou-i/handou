@@ -99,8 +99,14 @@
 
   /* 全部链接（不含 password 字段） */
   function listLinks() {
+    /* 排序交给库里的 sort_order（后台可调），没填的按 id 兜底 */
     return req('/rest/v1/' + CFG.table +
-      '?select=id,title,url,category,icon&order=category.asc,id.asc');
+      '?select=id,title,url,category,icon,sort_order&order=sort_order.asc,id.asc');
+  }
+
+  /* 分组表还没建的时候会抛 404，调用方自己决定退回什么 */
+  function listGroups() {
+    return req('/rest/v1/groups?select=*&order=sort_order.asc,id.asc');
   }
 
   /* 只问“哪些 id 有密码”，密码值不下发到前端
@@ -213,7 +219,7 @@
 
   window.DB = {
     session, signIn, signOut, currentUser,
-    listLinks, lockedIds, unlock, logClick,
+    listLinks, listGroups, lockedIds, unlock, logClick,
     createLink, updateLink, deleteLink, recentClicks,
     list, createIn, updateIn, removeIn
   };

@@ -57,6 +57,7 @@
   const PANES = {
     links: '#paneLinks',
     services: '#paneServices',
+    groups: '#paneGroups',
     shares: '#paneShares',
     stats: '#paneStats'
   };
@@ -71,6 +72,7 @@
       });
       if (tab === 'stats') loadStats();
       if (tab === 'services') loadContent('services');
+      if (tab === 'groups') loadContent('groups');
       if (tab === 'shares') loadContent('shares');
     });
   });
@@ -78,24 +80,33 @@
   /* ---------------- 链接列表 ---------------- */
   async function loadLinks() {
     const tbody = $('#linkRows');
-    tbody.innerHTML = '<tr><td colspan="5" class="empty">正在读取…</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">正在读取…</td></tr>';
     try {
-      const res = await Promise.all([DB.listLinks(), DB.lockedIds()]);
+      const res = await Promise.all([
+        DB.listLinks(),
+        DB.lockedIds(),
+        loadGroupNames().catch(function () { return []; })
+      ]);
       const locked = new Set(res[1] || []);
       LINKS = (res[0] || []).map(function (l) {
         l._locked = locked.has(String(l.id));
         return l;
+      }).sort(function (a, b) {
+        const ca = a.category || '', cb = b.category || '';
+        if (ca !== cb) return ca.localeCompare(cb, 'zh');
+        return (a.sort_order == null ? 9999 : a.sort_order) -
+               (b.sort_order == null ? 9999 : b.sort_order) || a.id - b.id;
       });
       renderLinks();
     } catch (e) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty">读取失败：' + esc(e.message) + '</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">读取失败：' + esc(e.message) + '</td></tr>';
     }
   }
 
   function renderLinks() {
     const tbody = $('#linkRows');
     if (!LINKS.length) {
-      tbody.innerHTML = '<tr><td colspan="5" class="empty">还没有链接</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">还没有链接</td></tr>';
       $('#linkTotal').textContent = '0 条';
       return;
     }
@@ -108,7 +119,10 @@
           '<td><span class="chip">' + esc(l.category || '默认') + '</span>' +
             (l._locked ? ' <span class="chip" style="color:var(--lock);background:var(--lock-w);border-color:#EFDCBF">口令</span>' : '') +
           '</td>' +
+          '<td class="num" style="font-size:12px;color:var(--ink-3)">' + (l.sort_order == null ? '—' : esc(l.sort_order)) + '</td>' +
           '<td style="text-align:right;white-space:nowrap">' +
+            '<button class="btn btn--ghost btn--sm" data-mv="' + esc(l.id) + '|up" title="上移">↑</button>' +
+            '<button class="btn btn--ghost btn--sm" data-mv="' + esc(l.id) + '|down" title="下移">↓</button>' +
             '<button class="btn btn--ghost btn--sm" data-edit="' + esc(l.id) + '">改</button> ' +
             '<button class="btn btn--ghost btn--sm" data-del="' + esc(l.id) + '">删</button>' +
           '</td>' +
@@ -120,6 +134,12 @@
   $('#linkRows').addEventListener('click', async function (e) {
     const ed = e.target.closest('[data-edit]');
     const dl = e.target.closest('[data-del]');
+    const mv = e.target.closest('[data-mv]');
+    if (mv) {
+      const parts = mv.dataset.mv.split('|');
+      await moveLink(parts[0], parts[1]);
+      return;
+    }
 
     if (ed) {
       const l = LINKS.find(function (x) { return String(x.id) === ed.dataset.edit; });
@@ -140,13 +160,60 @@
     }
   });
 
+  /* 上移 / 下移：只在同一分类内交换，交换后整组重排成 10、20、30… */
+  async function moveLink(id, dir) {
+    const l = LINKS.find(function (x) { return String(x.id) === String(id); });
+    if (!l) return;
+    const same = LINKS.filter(function (x) { return (x.category || '') === (l.category || ''); });
+    const i = same.findIndex(function (x) { return String(x.id) === String(id); });
+    const j = i + (dir === 'up' ? -1 : 1);
+    if (i < 0 || j < 0 || j >= same.length) return;
+
+    const t = same[i]; same[i] = same[j]; same[j] = t;
+    const jobs = [];
+    same.forEach(function (x, k) {
+      const want = (k + 1) * 10;
+      if (x.sort_order !== want) {
+        x.sort_order = want;
+        jobs.push(DB.updateLink(x.id, { sort_order: want }));
+      }
+    });
+    if (!jobs.length) return;
+    try {
+      await Promise.all(jobs);
+      loadLinks();
+    } catch (ex) {
+      window.toast('排序失败：' + ex.message);
+    }
+  }
+
+  /* ---------------- 分组名（给链接的分类下拉用） ---------------- */
+  let GROUP_NAMES = [];
+  async function loadGroupNames() {
+    const rows = await DB.listGroups();
+    GROUP_NAMES = (rows || []).map(function (g) { return g.name; });
+    return GROUP_NAMES;
+  }
+
+  function fillCatOptions(cur) {
+    const sel = $('#fCat');
+    if (!sel) return;
+    const names = GROUP_NAMES.slice();
+    if (cur && names.indexOf(cur) === -1) names.unshift(cur);
+    if (!names.length) names.push('常用');
+    sel.innerHTML = names.map(function (n) {
+      return '<option value="' + esc(n) + '"' + (n === cur ? ' selected' : '') + '>' + esc(n) + '</option>';
+    }).join('');
+  }
+
   /* ---------------- 新增 / 编辑 ---------------- */
   function openEdit(l) {
     editingId = l ? l.id : null;
     $('#editTitle').textContent = l ? '改链接' : '新增链接';
     $('#fTitle').value = l ? (l.title || '') : '';
     $('#fUrl').value = l ? (l.url || '') : '';
-    $('#fCat').value = l ? (l.category || '常用') : '常用';
+    fillCatOptions(l ? (l.category || '') : (GROUP_NAMES[0] || '常用'));
+    $('#fSort').value = (l && l.sort_order != null) ? String(l.sort_order) : '';
     $('#fPass').value = '';
     $('#fPass').placeholder = l && l._locked ? '已设口令，留空表示不改' : '可留空，表示不需要口令';
     $('#editErr').textContent = '';
@@ -167,6 +234,17 @@
     if (!/^https?:\/\//i.test(url)) { err.textContent = '地址要以 http:// 或 https:// 开头'; return; }
 
     const row = { title: title, url: url, category: cat };
+
+    /* 排序：填了就按填的；新增且没填，自动排到该组最后 */
+    const sortRaw = $('#fSort').value.trim();
+    if (sortRaw !== '') {
+      row.sort_order = Number(sortRaw);
+    } else if (editingId == null) {
+      const same = LINKS.filter(function (x) { return (x.category || '') === cat; });
+      const mx = same.reduce(function (m, x) { return Math.max(m, x.sort_order || 0); }, 0);
+      row.sort_order = mx + 10;
+    }
+
     if (pass !== '') row.password = pass;
 
     btn.disabled = true;
@@ -307,6 +385,22 @@
         { k: 'sort_order', label: '排序（小的在前）', type: 'number', ph: '1' }
       ]
     },
+    groups: {
+      table: 'groups',
+      name: '分组',
+      cols: [
+        { k: 'name', t: '分组名' },
+        { k: 'hint', t: '副标题' },
+        { k: 'color', t: '颜色', w: '110px' },
+        { k: 'sort_order', t: '排序', w: '70px' }
+      ],
+      fields: [
+        { k: 'name', label: '分组名（和链接的分类一致）', ph: '常用 / 其他 / 收藏', req: true },
+        { k: 'hint', label: '副标题（可空）', ph: '装飞牛先看这几个' },
+        { k: 'color', label: '小圆点颜色', ph: '#3FA3AE' },
+        { k: 'sort_order', label: '排序（小的在前）', type: 'number', ph: '10' }
+      ]
+    },
     shares: {
       table: 'shares',
       name: '分享',
@@ -349,7 +443,8 @@
     const sch = SCHEMAS[kind];
     const rows = ROWS[kind] || [];
     const tbody = $('#rows-' + kind);
-    const total = $('#' + (kind === 'services' ? 'svcTotal' : 'shrTotal'));
+    const TOTAL_ID = { services: 'svcTotal', shares: 'shrTotal', groups: 'grpTotal' };
+    const total = $('#' + (TOTAL_ID[kind] || 'shrTotal'));
     if (total) total.textContent = rows.length + ' 条';
 
     if (!rows.length) {
@@ -457,6 +552,8 @@
       closeModal('cModal');
       window.toast('已保存，前台刷新可见');
       loadContent(curKind);
+      if (curKind === 'groups') { GROUP_NAMES = []; loadGroupNames().catch(function () {}); }
+      if (curKind === 'groups') loadLinks();
     } catch (ex) {
       $('#cErr').textContent = '保存失败：' + ex.message;
     } finally {

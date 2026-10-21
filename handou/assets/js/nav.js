@@ -14,6 +14,10 @@
   let ALL = [];          // 全量链接
   let LOCKED = new Set();// 有口令的 id
   let QUERY = '';
+  /* 分组：优先用数据库里的 public.groups，读不到才退回 config.js 里那两条 */
+  let GROUPS = (S.navGroups || []).map(function (g) {
+    return { name: g.id, hint: g.hint || '', color: g.color || '#3FA3AE' };
+  });
 
   /* ---------- 折叠状态 ---------- */
   function readFold() {
@@ -87,18 +91,22 @@
 
   /* ---------- 分组 ---------- */
   function groupOf(cat) {
-    const groups = S.navGroups.map(function (g) { return g.id; });
-    if (cat && groups.indexOf(cat) !== -1) return cat;
-    return S.navGroups[0].id;   // 默认 / 收藏 / 其他未知分类 → 第一组
+    const names = GROUPS.map(function (g) { return g.name; });
+    if (cat && names.indexOf(cat) !== -1) return cat;
+    return GROUPS.length ? GROUPS[0].name : '默认';   // 未知分类 → 第一组
   }
 
   /* ---------- 渲染 ---------- */
   function render() {
+    if (!GROUPS.length) {
+      mount.innerHTML = '<div class="empty">还没有分组，去后台「分组」里加一个</div>';
+      return;
+    }
     const fold = readFold();
     const q = QUERY.trim().toLowerCase();
 
     const buckets = {};
-    S.navGroups.forEach(function (g) { buckets[g.id] = []; });
+    GROUPS.forEach(function (g) { buckets[g.name] = []; });
 
     ALL.forEach(function (l) {
       if (q) {
@@ -119,10 +127,10 @@
     }
 
     let html = '';
-    S.navGroups.forEach(function (g, i) {
-      const items = buckets[g.id];
+    GROUPS.forEach(function (g, i) {
+      const items = buckets[g.name];
       /* 搜索时强制展开，否则按记忆状态 */
-      const open = q ? true : fold[g.id] !== false;
+      const open = q ? true : fold[g.name] !== false;
 
       let inner = '';
       if (!items.length) {
@@ -147,10 +155,11 @@
       }
 
       html += '' +
-        '<section class="grp" data-open="' + (open ? 'true' : 'false') + '" data-g="' + esc(g.id) + '">' +
-          '<button class="grp__head" data-toggle="' + esc(g.id) + '">' +
+        '<section class="grp" data-open="' + (open ? 'true' : 'false') + '" data-g="' + esc(g.name) + '">' +
+          '<button class="grp__head" data-toggle="' + esc(g.name) + '">' +
             '<span class="grp__dot" style="background:' + g.color + '"></span>' +
-            '<span class="grp__name">' + esc(g.id) + '</span>' +
+            '<span class="grp__name">' + esc(g.name) + '</span>' +
+            (g.hint ? '<span class="grp__hint">' + esc(g.hint) + '</span>' : '') +
             '<span class="grp__count">' + items.length + ' 个链接</span>' +
             '<span class="grp__chev">' +
               '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">' +
@@ -274,9 +283,25 @@
   async function boot() {
     mount.innerHTML = '<div class="empty">正在读取…</div>';
     try {
-      const results = await Promise.all([DB.listLinks(), DB.lockedIds()]);
+      const results = await Promise.all([
+        DB.listLinks(),
+        DB.lockedIds(),
+        /* 分组表没建 / 读失败时给 null，主体照常渲染 */
+        DB.listGroups().catch(function () { return null; })
+      ]);
       ALL = results[0] || [];
       LOCKED = new Set(results[1] || []);
+      const gs = results[2];
+      if (Array.isArray(gs) && gs.length) {
+        GROUPS = gs.filter(function (g) { return g.visible !== false; })
+          .map(function (g) {
+            return {
+              name: g.name,
+              hint: g.hint || '',
+              color: g.color || '#3FA3AE'
+            };
+          });
+      }
       render();
     } catch (e) {
       mount.innerHTML =

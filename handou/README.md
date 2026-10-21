@@ -25,7 +25,8 @@ handou-site/
 ├── sql/
 │   ├── 01-后台与口令.sql      Supabase 配置一：口令列收权 + 后台读写
 │   ├── 02-可编辑内容.sql      Supabase 配置二：services / shares 两张内容表
-│   └── 03-点击限频.sql        Supabase 配置三：click_log 同 IP 限频触发器
+│   ├── 03-点击限频.sql        Supabase 配置三：click_log 同 IP 限频触发器
+│   └── 05-分组可编辑.sql      Supabase 配置四：groups 表 + links.sort_order
 └── assets/
     ├── css/
     │   ├── tokens.css        全部设计变量，改颜色只改这页
@@ -104,7 +105,20 @@ contact:  { qq: { label, url } }
 > 改清单就在对应 `<ul>` 里加/改 `<li>`，右栏价格卡在 `<aside class="sp-side">`。
 > 这样改完直接推 GitHub 就生效，不需要碰数据库。
 
-### 4. 增删常用入口
+### 4. 分组与排序
+
+后台「分组」标签页可以改常用入口的分组：分组名、副标题、小圆点颜色、先后顺序，
+增删分组也在那里。
+
+- **分组名必须和链接的「分类」一致**，否则那条链接会掉进第一组。
+  改名之后，链接的分类要跟着改（或在 SQL Editor 跑一句 update）。
+- 链接的先后顺序在「链接管理」里：每行有 **↑ ↓** 两个按钮，只在同一分组内交换；
+  也可以直接点「改」，在弹层里填 `排序` 数字（小的在前，一般 10、20、30 这样留空档）。
+
+数据存在 `groups` 表（先跑 `sql/05-分组可编辑.sql`）。表没建的时候，
+前台退回 `config.js` 里写死的那两个分组，页面照常显示。
+
+### 5. 增删常用入口
 
 不用改代码，进 `/admin/` 登录后直接增删改。
 数据在 Supabase 的 `links` 表，字段：`id / title / url / category / password / icon`。
