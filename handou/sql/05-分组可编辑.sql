@@ -75,9 +75,8 @@ select g.name, g.hint, g.color, g.sort_order,
 
 
 -- ============================================================
--- 改名提示（后台改分组名时要做的事）
--- groups.name 只是分组标题；links.category 里存的是同一个名字。
--- 后台「分组」里改名后，如果对应链接没跟着变，就会掉进第一组。
--- 需要时在 SQL Editor 跑一句：
---   update public.links set category = '新名字' where category = '旧名字';
+-- 改名提示
+-- groups.name 是分组标题，links.category 里存的是同一个名字。
+-- 改名同步已经由 sql/06-分组改名同步.sql 的触发器自动处理，
+-- 这里不用再手动 update。
 -- ============================================================
