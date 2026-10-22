@@ -80,10 +80,18 @@
               ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
               '<path d="M5 12h13M12.5 5.5 19 12l-6.5 6.5"/></svg>';
 
+  var PLAY = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+             '<path d="M8.6 5.3v13.4a.9.9 0 0 0 1.37.77l10.2-6.7a.9.9 0 0 0 0-1.54l-10.2-6.7A.9.9 0 0 0 8.6 5.3z"/></svg>';
+
   var LOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"' +
              ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
              '<rect x="4.5" y="10.5" width="15" height="10" rx="2.4"/>' +
              '<path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7"/></svg>';
+
+  /* 地址以视频扩展名结尾 → 当视频卡处理（点开原地播，不跳转） */
+  function isVideo(u) {
+    return /\.(mp4|webm|ogg|m4v|mov)(\?|#|$)/i.test(String(u || ''));
+  }
 
   /* 只挡 javascript: 这类；站内相对路径（services/movie.html）要放行 */
   function safeUrl(u) {
@@ -144,16 +152,18 @@
       } else {
         inner = '<div class="lgrid">' + items.map(function (l) {
           const locked = LOCKED.has(String(l.id));
+          const vid = isVideo(l.url);
           const h = host(l.url);
           return '' +
-            '<button class="lk' + (locked ? ' lk--locked' : '') + '"' +
+            '<button class="lk' + (locked ? ' lk--locked' : '') + (vid ? ' lk--video' : '') + '"' +
             ' data-id="' + esc(l.id) + '"' +
             ' data-url="' + esc(safeUrl(l.url)) + '"' +
             ' data-title="' + esc(l.title) + '"' +
             ' data-locked="' + (locked ? '1' : '0') + '"' +
             ' data-g="' + i + '"' +
+            ' data-kind="' + (vid ? 'video' : 'link') + '"' +
             ' title="' + esc(l.title) + (h ? ' · ' + esc(h) : '') + '">' +
-              '<span class="lk__ic" aria-hidden="true">' + (iconOf(l.icon) || ARROW) + '</span>' +
+              '<span class="lk__ic" aria-hidden="true">' + (vid ? PLAY : (iconOf(l.icon) || ARROW)) + '</span>' +
               '<span class="lk__t">' + esc(l.title) + '</span>' +
               (locked ? '<span class="lk__lock" aria-label="需要口令">' + LOCK + '</span>' : '') +
             '</button>';
@@ -201,6 +211,9 @@
 
       if (card.dataset.locked === '1') {
         askPass(id, title, url);
+      } else if (card.dataset.kind === 'video') {
+        DB.logClick(id, title, url);
+        openVideo(url, title);
       } else {
         DB.logClick(id, title, url);
         if (url && url !== '#') {
@@ -290,6 +303,45 @@
       const v = search.value;
       t = setTimeout(function () { QUERY = v; render(); }, 120);
     });
+  }
+
+  /* ---------- 视频弹层：点了原地播，不跳走 ---------- */
+  function closeVideo() {
+    const m = document.getElementById('videoModal');
+    if (!m) return;
+    const v = m.querySelector('video');
+    if (v) { v.pause(); v.removeAttribute('src'); v.load(); }
+    m.dataset.open = 'false';
+  }
+
+  function openVideo(url, title) {
+    let m = document.getElementById('videoModal');
+    if (!m) {
+      m = document.createElement('div');
+      m.id = 'videoModal';
+      m.className = 'vmodal';
+      m.dataset.open = 'false';
+      m.innerHTML =
+        '<div class="vmodal__box" role="dialog" aria-modal="true">' +
+          '<div class="vmodal__hd">' +
+            '<span class="vmodal__t"></span>' +
+            '<button class="vmodal__x" aria-label="关闭">×</button>' +
+          '</div>' +
+          '<video class="vmodal__v" controls playsinline preload="metadata"></video>' +
+        '</div>';
+      document.body.appendChild(m);
+      m.addEventListener('click', function (e) {
+        if (e.target === m || e.target.closest('.vmodal__x')) closeVideo();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeVideo();
+      });
+    }
+    m.querySelector('.vmodal__t').textContent = title || '';
+    const v = m.querySelector('video');
+    v.src = url;
+    m.dataset.open = 'true';
+    v.play().catch(function () {});
   }
 
   /* ---------- 加载 ---------- */

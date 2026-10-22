@@ -767,3 +767,75 @@ select.inp {
 media (max-width: 900px) {
   .svcards { grid-template-columns: 1fr; }
 }
+
+/* ============================================================
+   视频卡 + 页内播放弹层
+   地址是 .mp4/.webm 这类时，卡片左边变成播放键，点开原地播。
+   ============================================================ */
+.lk--video .lk__ic { color: var(--band-1); }
+.lk--video:hover .lk__ic { color: var(--accent-deep); }
+.lk--video .lk__t::after {
+  content: "视频";
+  margin-left: 8px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
+  padding: 3px 5px;
+  border-radius: 4px;
+  color: var(--band-1);
+  background: rgba(63, 163, 174, .12);
+  vertical-align: 2px;
+}
+
+.vmodal {
+  position: fixed; inset: 0; z-index: 90;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 24px;
+  background: rgba(16, 24, 38, .74);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.vmodal[data-open="true"] { display: flex; }
+
+.vmodal__box {
+  width: min(980px, 100%);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #10151C;
+  box-shadow: 0 40px 90px -40px rgba(0, 0, 0, .7);
+}
+.vmodal__hd {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 10px 9px 15px;
+  color: #fff;
+}
+.vmodal__t {
+  flex: 1; min-width: 0;
+  font-size: 13.5px; font-weight: 500;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  opacity: .9;
+}
+.vmodal__x {
+  flex: 0 0 30px; width: 30px; height: 30px;
+  border-radius: 8px; color: #fff;
+  font-size: 19px; line-height: 1;
+  background: rgba(255, 255, 255, .1);
+  transition: background .15s;
+}
+.vmodal__x:hover { background: rgba(255, 255, 255, .2); }
+
+.vmodal__v {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;      /* 占位先定好，加载时不会跳一下 */
+  max-height: 76vh;
+  object-fit: contain;
+  background: #000;
+}
+
+@media (max-width: 560px) {
+  .vmodal { padding: 10px; }
+  .vmodal__box { border-radius: 10px; }
+  .vmodal__v { max-height: 66vh; }
+}
