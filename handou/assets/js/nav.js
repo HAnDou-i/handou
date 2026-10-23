@@ -164,7 +164,10 @@
             ' data-kind="' + (vid ? 'video' : 'link') + '"' +
             ' title="' + esc(l.title) + (h ? ' · ' + esc(h) : '') + '">' +
               '<span class="lk__ic" aria-hidden="true">' + (vid ? PLAY : (iconOf(l.icon) || ARROW)) + '</span>' +
-              '<span class="lk__t">' + esc(l.title) + '</span>' +
+              '<span class="lk__tx">' +
+                '<span class="lk__t">' + esc(l.title) + '</span>' +
+                (l.subtitle ? '<span class="lk__s">' + esc(l.subtitle) + '</span>' : '') +
+              '</span>' +
               (locked ? '<span class="lk__lock" aria-label="需要口令">' + LOCK + '</span>' : '') +
             '</button>';
         }).join('') + '</div>';

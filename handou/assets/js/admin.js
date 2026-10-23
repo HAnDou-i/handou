@@ -211,6 +211,7 @@
     editingId = l ? l.id : null;
     $('#editTitle').textContent = l ? '改链接' : '新增链接';
     $('#fTitle').value = l ? (l.title || '') : '';
+    $('#fSub').value = l ? (l.subtitle || '') : '';
     $('#fUrl').value = l ? (l.url || '') : '';
     fillCatOptions(l ? (l.category || '') : (GROUP_NAMES[0] || '常用'));
     $('#fSort').value = (l && l.sort_order != null) ? String(l.sort_order) : '';
@@ -233,7 +234,7 @@
     if (!title) { err.textContent = '标题不能空'; return; }
     if (!/^https?:\/\//i.test(url)) { err.textContent = '地址要以 http:// 或 https:// 开头'; return; }
 
-    const row = { title: title, url: url, category: cat };
+    const row = { title: title, url: url, category: cat, subtitle: ($('#fSub').value.trim() || null) };
 
     /* 排序：填了就按填的；新增且没填，自动排到该组最后 */
     const sortRaw = $('#fSort').value.trim();

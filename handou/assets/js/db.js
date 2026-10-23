@@ -101,7 +101,7 @@
   function listLinks() {
     /* 排序交给库里的 sort_order（后台可调），没填的按 id 兜底 */
     return req('/rest/v1/' + CFG.table +
-      '?select=id,title,url,category,icon,sort_order&order=sort_order.asc,id.asc');
+      '?select=id,title,subtitle,url,category,icon,sort_order&order=sort_order.asc,id.asc');
   }
 
   /* 分组表还没建的时候会抛 404，调用方自己决定退回什么 */

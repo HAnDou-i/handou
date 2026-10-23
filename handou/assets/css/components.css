@@ -249,8 +249,8 @@
   display: flex;
   align-items: center;
   gap: 11px;
-  height: 56px;
-  padding: 0 20px;
+  min-height: 56px;
+  padding: 9px 20px;
   border: 1px solid rgba(255, 255, 255, .72);
   border-radius: var(--r-pill);
   background: rgba(255, 255, 255, .86);
@@ -282,8 +282,24 @@
 .lk:hover .lk__ic { color: var(--accent-deep); }
 .lk--locked .lk__ic { color: var(--lock); }
 
+.lk__tx {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lk__s {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--ink-4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lk__lock { margin-left: 2px; }
 .lk__t {
-  flex: 0 1 auto;
+  flex: 0 0 auto;
   min-width: 0;
   font-size: 14px;
   font-weight: 500;
