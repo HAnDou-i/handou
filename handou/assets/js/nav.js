@@ -16,6 +16,7 @@
   let QUERY = '';
   /* 分组：优先用数据库里的 public.groups，读不到才退回 config.js 里那两条 */
   let ITEMS = {};        // link_id → 子链接数组
+  let LINKMAP = {};      // id → 链接对象（弹层里要用它的主地址和描述）
   let GROUPS = (S.navGroups || []).map(function (g) {
     return { name: g.id, hint: g.hint || '', color: g.color || '#3FA3AE' };
   });
@@ -118,6 +119,9 @@
     const fold = readFold();
     const q = QUERY.trim().toLowerCase();
 
+    LINKMAP = {};
+    ALL.forEach(function (l) { LINKMAP[String(l.id)] = l; });
+
     const buckets = {};
     GROUPS.forEach(function (g) { buckets[g.name] = []; });
 
@@ -172,7 +176,7 @@
                 '<span class="lk__t">' + esc(l.title) + '</span>' +
                 (l.subtitle ? '<span class="lk__s">' + esc(l.subtitle) + '</span>' : '') +
               '</span>' +
-              (subs.length ? '<span class="lk__n">' + subs.length + '</span>' : '') +
+              (subs.length ? '<span class="lk__n">' + (subs.length + 1) + '</span>' : '') +
               (locked ? '<span class="lk__lock" aria-label="需要口令">' + LOCK + '</span>' : '') +
             '</button>';
         }).join('') + '</div>';
@@ -383,7 +387,14 @@
       });
     }
     m.querySelector('.modal__t').textContent = title || '';
-    m.querySelector('.lrows').innerHTML = subs.map(function (it) {
+
+    /* 主地址排第一，其他地址跟在后面 */
+    const main = LINKMAP[String(id)];
+    const opts = [];
+    if (main) opts.push({ title: main.subtitle || '主地址', url: main.url });
+    subs.forEach(function (it) { opts.push({ title: it.title, url: it.url }); });
+
+    m.querySelector('.lrows').innerHTML = opts.map(function (it) {
       const u = safeUrl(it.url);
       return '<a class="lrow" href="' + esc(u) + '"' +
         (/^https?:\/\//i.test(u) ? ' target="_blank" rel="noopener noreferrer"' : '') +
@@ -391,6 +402,13 @@
           '<span class="lrow__t">' + esc(it.title) + '</span>' +
         '</a>';
     }).join('');
+
+    /* 点哪一项都记到这张卡上，后台统计还按卡片算 */
+    m.querySelectorAll('.lrow').forEach(function (a) {
+      a.addEventListener('click', function () {
+        try { DB.logClick(id, title, a.dataset.url); } catch (e) {}
+      });
+    });
     m.dataset.open = 'true';
   }
 

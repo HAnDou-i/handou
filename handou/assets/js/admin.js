@@ -123,7 +123,6 @@
           '<td style="text-align:right;white-space:nowrap">' +
             '<button class="btn btn--ghost btn--sm" data-mv="' + esc(l.id) + '|up" title="上移">↑</button>' +
             '<button class="btn btn--ghost btn--sm" data-mv="' + esc(l.id) + '|down" title="下移">↓</button>' +
-            '<button class="btn btn--ghost btn--sm" data-sub="' + esc(l.id) + '" title="次级标题">子项</button>' +
             '<button class="btn btn--ghost btn--sm" data-edit="' + esc(l.id) + '">改</button> ' +
             '<button class="btn btn--ghost btn--sm" data-del="' + esc(l.id) + '">删</button>' +
           '</td>' +
@@ -135,12 +134,6 @@
   $('#linkRows').addEventListener('click', async function (e) {
     const ed = e.target.closest('[data-edit]');
     const dl = e.target.closest('[data-del]');
-    const sb = e.target.closest('[data-sub]');
-    if (sb) {
-      const l = LINKS.find(function (x) { return String(x.id) === sb.dataset.sub; });
-      if (l) openSubs(l);
-      return;
-    }
     const mv = e.target.closest('[data-mv]');
     if (mv) {
       const parts = mv.dataset.mv.split('|');
@@ -214,74 +207,56 @@
   }
 
 
-  /* ---------------- 次级标题（子链接） ---------------- */
-  let subLink = null;
-
+  /* ---------------- 同一张卡下的其他地址（link_items） ---------------- */
   function subRow(title, url) {
     return '<div class="subrow">' +
-      '<input class="inp" data-k="title" type="text" placeholder="次级标题" value="' + esc(title || '') + '">' +
+      '<input class="inp" data-k="title" type="text" placeholder="这一项的标题" value="' + esc(title || '') + '">' +
       '<input class="inp" data-k="url" type="text" placeholder="https://..." value="' + esc(url || '') + '">' +
       '<button class="subrow__x" type="button" data-rm title="删掉这行">×</button>' +
     '</div>';
   }
 
-  async function openSubs(link) {
-    subLink = link;
-    $('#subTitle').textContent = '次级标题 · ' + (link.title || '');
-    $('#subErr').textContent = '';
-    $('#subRows').innerHTML = '<div class="empty">正在读取…</div>';
-    openModal('subModal');
+  /* 读当前输入框里的其他地址（标题空就自动叫「地址 2」之类） */
+  function readSubRows() {
+    const rows = [];
+    $$('#fSubRows .subrow').forEach(function (r, i) {
+      const t = r.querySelector('[data-k="title"]').value.trim();
+      const u = r.querySelector('[data-k="url"]').value.trim();
+      if (!u) return;
+      rows.push({ title: t || ('地址 ' + (i + 2)), url: u, sort_order: (i + 1) * 10 });
+    });
+    return rows;
+  }
+
+  async function loadSubRows(linkId) {
+    $('#fSubRows').innerHTML = '';
     try {
       const rows = await DB.list('link_items',
-        '?select=*&link_id=eq.' + encodeURIComponent(link.id) + '&order=sort_order.asc,id.asc');
-      const html = (rows || []).map(function (r) { return subRow(r.title, r.url); }).join('');
-      $('#subRows').innerHTML = html || subRow('', '');
+        '?select=*&link_id=eq.' + encodeURIComponent(linkId) + '&order=sort_order.asc,id.asc');
+      $('#fSubRows').innerHTML = (rows || []).map(function (r) { return subRow(r.title, r.url); }).join('');
     } catch (ex) {
-      $('#subRows').innerHTML = '';
-      $('#subErr').textContent = '读取失败：' + ex.message +
-        (ex.status === 404 ? '（先跑 sql/09-子链接.sql 建表）' : '');
+      /* 表还没建 / 读取失败：不阻塞改链接本身 */
     }
   }
 
-  $('#subAdd').addEventListener('click', function () {
-    $('#subRows').insertAdjacentHTML('beforeend', subRow('', ''));
+  async function syncSubRows(linkId, rows) {
+    const old = await DB.list('link_items',
+      '?select=id&link_id=eq.' + encodeURIComponent(linkId));
+    for (const o of (old || [])) await DB.removeIn('link_items', o.id);
+    if (rows.length) {
+      await DB.createIn('link_items', rows.map(function (r) {
+        return { link_id: linkId, title: r.title, url: r.url, sort_order: r.sort_order };
+      }));
+    }
+  }
+
+  $('#fSubAdd').addEventListener('click', function () {
+    $('#fSubRows').insertAdjacentHTML('beforeend', subRow('', ''));
   });
 
-  $('#subRows').addEventListener('click', function (e) {
+  $('#fSubRows').addEventListener('click', function (e) {
     const x = e.target.closest('[data-rm]');
-    if (x) {
-      x.closest('.subrow').remove();
-      if (!$('#subRows').children.length) $('#subRows').innerHTML = subRow('', '');
-    }
-  });
-
-  $('#subSave').addEventListener('click', async function () {
-    if (!subLink) return;
-    const btn = $('#subSave');
-    const rows = [];
-    $$('#subRows .subrow').forEach(function (r, i) {
-      const t = r.querySelector('[data-k="title"]').value.trim();
-      const u = r.querySelector('[data-k="url"]').value.trim();
-      if (!t) return;
-      rows.push({ link_id: subLink.id, title: t, url: u || null, sort_order: (i + 1) * 10 });
-    });
-
-    btn.disabled = true; btn.textContent = '保存中…';
-    $('#subErr').textContent = '';
-    try {
-      /* 先清掉这张卡原有的，再按当前顺序整体写回 */
-      const old = await DB.list('link_items',
-        '?select=id&link_id=eq.' + encodeURIComponent(subLink.id));
-      for (const o of (old || [])) await DB.removeIn('link_items', o.id);
-      if (rows.length) await DB.createIn('link_items', rows);
-      closeModal('subModal');
-      window.toast('已保存 ' + rows.length + ' 个次级标题');
-      loadLinks();
-    } catch (ex) {
-      $('#subErr').textContent = '保存失败：' + ex.message;
-    } finally {
-      btn.disabled = false; btn.textContent = '保存';
-    }
+    if (x) x.closest('.subrow').remove();
   });
 
   /* ---------------- 新增 / 编辑 ---------------- */
@@ -296,7 +271,9 @@
     $('#fPass').value = '';
     $('#fPass').placeholder = l && l._locked ? '已设口令，留空表示不改' : '可留空，表示不需要口令';
     $('#editErr').textContent = '';
+    $('#fSubRows').innerHTML = '';
     openModal('editModal');
+    if (l) loadSubRows(l.id);
   }
 
   $('#addBtn').addEventListener('click', function () { openEdit(null); });
@@ -310,7 +287,11 @@
     const btn = $('#saveBtn');
 
     if (!title) { err.textContent = '标题不能空'; return; }
-    if (!/^https?:\/\//i.test(url)) { err.textContent = '地址要以 http:// 或 https:// 开头'; return; }
+    if (!/^https?:\/\//i.test(url)) { err.textContent = '主地址要以 http:// 或 https:// 开头'; return; }
+
+    const extra = readSubRows();
+    const bad = extra.filter(function (r) { return !/^https?:\/\//i.test(r.url); })[0];
+    if (bad) { err.textContent = '「' + bad.title + '」的地址要以 http:// 或 https:// 开头'; return; }
 
     const row = { title: title, url: url, category: cat, subtitle: ($('#fSub').value.trim() || null) };
 
@@ -331,13 +312,17 @@
     err.textContent = '';
 
     try {
+      let lid = editingId;
       if (editingId == null) {
-        await DB.createLink(row);
+        const res = await DB.createLink(row);
+        lid = (res && res[0] && res[0].id) || null;
         window.toast('已新增');
       } else {
         await DB.updateLink(editingId, row);
         window.toast('已保存');
       }
+      /* 其他地址：整组重写（先删后插），跟编辑框里看到的一致 */
+      if (lid) await syncSubRows(lid, extra);
       closeModal('editModal');
       loadLinks();
     } catch (ex) {
