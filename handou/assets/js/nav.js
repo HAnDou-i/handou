@@ -168,7 +168,7 @@
             ' data-title="' + esc(l.title) + '"' +
             ' data-locked="' + (locked ? '1' : '0') + '"' +
             ' data-g="' + i + '"' +
-            ' data-kind="' + (vid ? 'video' : (subs.length ? 'list' : 'link')) + '"' +
+            ' data-kind="' + (subs.length ? 'list' : (vid ? 'video' : 'link')) + '"' +
             ' data-eid="' + esc(l.id) + '"' +
             ' title="' + esc(l.title) + (h ? ' · ' + esc(h) : '') + '">' +
               '<span class="lk__ic" aria-hidden="true">' + (vid ? PLAY : (iconOf(l.icon) || ARROW)) + '</span>' +
@@ -396,17 +396,23 @@
 
     m.querySelector('.lrows').innerHTML = opts.map(function (it) {
       const u = safeUrl(it.url);
-      return '<a class="lrow" href="' + esc(u) + '"' +
-        (/^https?:\/\//i.test(u) ? ' target="_blank" rel="noopener noreferrer"' : '') +
-        ' data-url="' + esc(u) + '">' +
+      const video = isVideo(u);
+      return '<a class="lrow' + (video ? ' lrow--video' : '') + '" href="' + esc(u) + '"' +
+        (video ? '' : (/^https?:\/\//i.test(u) ? ' target="_blank" rel="noopener noreferrer"' : '')) +
+        ' data-url="' + esc(u) + '" data-video="' + (video ? '1' : '0') + '">' +
           '<span class="lrow__t">' + esc(it.title) + '</span>' +
         '</a>';
     }).join('');
 
-    /* 点哪一项都记到这张卡上，后台统计还按卡片算 */
+    /* 点哪一项都记到这张卡上，后台统计还按卡片算；视频项原地播放 */
     m.querySelectorAll('.lrow').forEach(function (a) {
-      a.addEventListener('click', function () {
-        try { DB.logClick(id, title, a.dataset.url); } catch (e) {}
+      a.addEventListener('click', function (e) {
+        try { DB.logClick(id, title, a.dataset.url); } catch (ex) {}
+        if (a.dataset.video === '1') {
+          e.preventDefault();
+          m.dataset.open = 'false';
+          openVideo(a.dataset.url, a.querySelector('.lrow__t').textContent);
+        }
       });
     });
     m.dataset.open = 'true';

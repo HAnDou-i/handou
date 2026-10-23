@@ -899,3 +899,4 @@ media (max-width: 900px) {
   line-height: 1;
   color: var(--ink-4);
 }
+.lrow--video::after { content: '▶'; font-size: 10px; }
