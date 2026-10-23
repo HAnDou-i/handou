@@ -15,6 +15,7 @@
   let LOCKED = new Set();// 有口令的 id
   let QUERY = '';
   /* 分组：优先用数据库里的 public.groups，读不到才退回 config.js 里那两条 */
+  let ITEMS = {};        // link_id → 子链接数组
   let GROUPS = (S.navGroups || []).map(function (g) {
     return { name: g.id, hint: g.hint || '', color: g.color || '#3FA3AE' };
   });
@@ -153,21 +154,25 @@
         inner = '<div class="lgrid">' + items.map(function (l) {
           const locked = LOCKED.has(String(l.id));
           const vid = isVideo(l.url);
+          const subs = ITEMS[String(l.id)] || [];
           const h = host(l.url);
           return '' +
-            '<button class="lk' + (locked ? ' lk--locked' : '') + (vid ? ' lk--video' : '') + '"' +
+            '<button class="lk' + (locked ? ' lk--locked' : '') + (vid ? ' lk--video' : '') +
+              (subs.length ? ' lk--sub' : '') + '"' +
             ' data-id="' + esc(l.id) + '"' +
             ' data-url="' + esc(safeUrl(l.url)) + '"' +
             ' data-title="' + esc(l.title) + '"' +
             ' data-locked="' + (locked ? '1' : '0') + '"' +
             ' data-g="' + i + '"' +
-            ' data-kind="' + (vid ? 'video' : 'link') + '"' +
+            ' data-kind="' + (vid ? 'video' : (subs.length ? 'list' : 'link')) + '"' +
+            ' data-eid="' + esc(l.id) + '"' +
             ' title="' + esc(l.title) + (h ? ' · ' + esc(h) : '') + '">' +
               '<span class="lk__ic" aria-hidden="true">' + (vid ? PLAY : (iconOf(l.icon) || ARROW)) + '</span>' +
               '<span class="lk__tx">' +
                 '<span class="lk__t">' + esc(l.title) + '</span>' +
                 (l.subtitle ? '<span class="lk__s">' + esc(l.subtitle) + '</span>' : '') +
               '</span>' +
+              (subs.length ? '<span class="lk__n">' + subs.length + '</span>' : '') +
               (locked ? '<span class="lk__lock" aria-label="需要口令">' + LOCK + '</span>' : '') +
             '</button>';
         }).join('') + '</div>';
@@ -217,6 +222,8 @@
       } else if (card.dataset.kind === 'video') {
         DB.logClick(id, title, url);
         openVideo(url, title);
+      } else if (card.dataset.kind === 'list') {
+        openList(id, title);
       } else {
         DB.logClick(id, title, url);
         if (url && url !== '#') {
@@ -347,6 +354,48 @@
     v.play().catch(function () {});
   }
 
+  /* ---------- 子链接弹层 ---------- */
+  function openList(id, title) {
+    const subs = ITEMS[String(id)] || [];
+    let m = document.getElementById('listModal');
+    if (!m) {
+      m = document.createElement('div');
+      m.id = 'listModal';
+      m.className = 'modal';
+      m.dataset.open = 'false';
+      m.innerHTML =
+        '<div class="modal__box" style="max-width:460px" role="dialog" aria-modal="true">' +
+          '<div class="modal__t"></div>' +
+          '<div class="modal__d">选一个打开</div>' +
+          '<div class="lrows"></div>' +
+          '<div class="modal__acts">' +
+            '<button class="btn btn--ghost" type="button" data-close>关闭</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(m);
+      m.addEventListener('click', function (e) {
+        if (e.target === m || e.target.closest('[data-close]')) {
+          m.dataset.open = 'false';
+        }
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && m.dataset.open === 'true') m.dataset.open = 'false';
+      });
+    }
+    m.querySelector('.modal__t').textContent = title || '';
+    m.querySelector('.lrows').innerHTML = subs.map(function (it) {
+      const u = safeUrl(it.url);
+      const hostTxt = host(it.url);
+      return '<a class="lrow" href="' + esc(u) + '"' +
+        (/^https?:\/\//i.test(u) ? ' target="_blank" rel="noopener noreferrer"' : '') +
+        ' data-url="' + esc(u) + '">' +
+          '<span class="lrow__t">' + esc(it.title) + '</span>' +
+          (hostTxt ? '<span class="lrow__h">' + esc(hostTxt) + '</span>' : '') +
+        '</a>';
+    }).join('');
+    m.dataset.open = 'true';
+  }
+
   /* ---------- 加载 ---------- */
   async function boot() {
     mount.innerHTML = '<div class="empty">正在读取…</div>';
@@ -355,10 +404,20 @@
         DB.listLinks(),
         DB.lockedIds(),
         /* 分组表没建 / 读失败时给 null，主体照常渲染 */
-        DB.listGroups().catch(function () { return null; })
+        DB.listGroups().catch(function () { return null; }),
+        DB.listItems().catch(function () { return null; })
       ]);
       ALL = results[0] || [];
       LOCKED = new Set(results[1] || []);
+      const rows = results[3];
+      if (Array.isArray(rows)) {
+        ITEMS = {};
+        rows.forEach(function (it) {
+          const k = String(it.link_id);
+          (ITEMS[k] = ITEMS[k] || []).push(it);
+        });
+      }
+
       const gs = results[2];
       if (Array.isArray(gs) && gs.length) {
         GROUPS = gs.filter(function (g) { return g.visible !== false; })

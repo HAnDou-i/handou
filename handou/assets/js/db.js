@@ -104,6 +104,11 @@
       '?select=id,title,subtitle,url,category,icon,sort_order&order=sort_order.asc,id.asc');
   }
 
+  /* 卡片的子链接（次级标题）。表没建时抛 404，调用方自己兜 */
+  function listItems() {
+    return req('/rest/v1/link_items?select=*&order=sort_order.asc,id.asc');
+  }
+
   /* 分组表还没建的时候会抛 404，调用方自己决定退回什么 */
   function listGroups() {
     return req('/rest/v1/groups?select=*&order=sort_order.asc,id.asc');
@@ -219,7 +224,7 @@
 
   window.DB = {
     session, signIn, signOut, currentUser,
-    listLinks, listGroups, lockedIds, unlock, logClick,
+    listLinks, listGroups, listItems, lockedIds, unlock, logClick,
     createLink, updateLink, deleteLink, recentClicks,
     list, createIn, updateIn, removeIn
   };

@@ -123,6 +123,7 @@
           '<td style="text-align:right;white-space:nowrap">' +
             '<button class="btn btn--ghost btn--sm" data-mv="' + esc(l.id) + '|up" title="上移">↑</button>' +
             '<button class="btn btn--ghost btn--sm" data-mv="' + esc(l.id) + '|down" title="下移">↓</button>' +
+            '<button class="btn btn--ghost btn--sm" data-sub="' + esc(l.id) + '" title="次级标题">子项</button>' +
             '<button class="btn btn--ghost btn--sm" data-edit="' + esc(l.id) + '">改</button> ' +
             '<button class="btn btn--ghost btn--sm" data-del="' + esc(l.id) + '">删</button>' +
           '</td>' +
@@ -134,6 +135,12 @@
   $('#linkRows').addEventListener('click', async function (e) {
     const ed = e.target.closest('[data-edit]');
     const dl = e.target.closest('[data-del]');
+    const sb = e.target.closest('[data-sub]');
+    if (sb) {
+      const l = LINKS.find(function (x) { return String(x.id) === sb.dataset.sub; });
+      if (l) openSubs(l);
+      return;
+    }
     const mv = e.target.closest('[data-mv]');
     if (mv) {
       const parts = mv.dataset.mv.split('|');
@@ -206,12 +213,83 @@
     }).join('');
   }
 
+
+  /* ---------------- 次级标题（子链接） ---------------- */
+  let subLink = null;
+
+  function subRow(title, url) {
+    return '<div class="subrow">' +
+      '<input class="inp" data-k="title" type="text" placeholder="次级标题" value="' + esc(title || '') + '">' +
+      '<input class="inp" data-k="url" type="text" placeholder="https://..." value="' + esc(url || '') + '">' +
+      '<button class="subrow__x" type="button" data-rm title="删掉这行">×</button>' +
+    '</div>';
+  }
+
+  async function openSubs(link) {
+    subLink = link;
+    $('#subTitle').textContent = '次级标题 · ' + (link.title || '');
+    $('#subErr').textContent = '';
+    $('#subRows').innerHTML = '<div class="empty">正在读取…</div>';
+    openModal('subModal');
+    try {
+      const rows = await DB.list('link_items',
+        '?select=*&link_id=eq.' + encodeURIComponent(link.id) + '&order=sort_order.asc,id.asc');
+      const html = (rows || []).map(function (r) { return subRow(r.title, r.url); }).join('');
+      $('#subRows').innerHTML = html || subRow('', '');
+    } catch (ex) {
+      $('#subRows').innerHTML = '';
+      $('#subErr').textContent = '读取失败：' + ex.message +
+        (ex.status === 404 ? '（先跑 sql/09-子链接.sql 建表）' : '');
+    }
+  }
+
+  $('#subAdd').addEventListener('click', function () {
+    $('#subRows').insertAdjacentHTML('beforeend', subRow('', ''));
+  });
+
+  $('#subRows').addEventListener('click', function (e) {
+    const x = e.target.closest('[data-rm]');
+    if (x) {
+      x.closest('.subrow').remove();
+      if (!$('#subRows').children.length) $('#subRows').innerHTML = subRow('', '');
+    }
+  });
+
+  $('#subSave').addEventListener('click', async function () {
+    if (!subLink) return;
+    const btn = $('#subSave');
+    const rows = [];
+    $$('#subRows .subrow').forEach(function (r, i) {
+      const t = r.querySelector('[data-k="title"]').value.trim();
+      const u = r.querySelector('[data-k="url"]').value.trim();
+      if (!t) return;
+      rows.push({ link_id: subLink.id, title: t, url: u || null, sort_order: (i + 1) * 10 });
+    });
+
+    btn.disabled = true; btn.textContent = '保存中…';
+    $('#subErr').textContent = '';
+    try {
+      /* 先清掉这张卡原有的，再按当前顺序整体写回 */
+      const old = await DB.list('link_items',
+        '?select=id&link_id=eq.' + encodeURIComponent(subLink.id));
+      for (const o of (old || [])) await DB.removeIn('link_items', o.id);
+      if (rows.length) await DB.createIn('link_items', rows);
+      closeModal('subModal');
+      window.toast('已保存 ' + rows.length + ' 个次级标题');
+      loadLinks();
+    } catch (ex) {
+      $('#subErr').textContent = '保存失败：' + ex.message;
+    } finally {
+      btn.disabled = false; btn.textContent = '保存';
+    }
+  });
+
   /* ---------------- 新增 / 编辑 ---------------- */
   function openEdit(l) {
     editingId = l ? l.id : null;
     $('#editTitle').textContent = l ? '改链接' : '新增链接';
     $('#fTitle').value = l ? (l.title || '') : '';
-    $('#fSub').value = l ? (l.subtitle || '') : '';
+    $('#fSub').value = l ? (l.subtitle || '') : '';   // 单行小字描述
     $('#fUrl').value = l ? (l.url || '') : '';
     fillCatOptions(l ? (l.category || '') : (GROUP_NAMES[0] || '常用'));
     $('#fSort').value = (l && l.sort_order != null) ? String(l.sort_order) : '';

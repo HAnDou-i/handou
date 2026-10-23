@@ -97,7 +97,7 @@
         <input class="inp" id="fTitle" type="text" placeholder="比如：飞牛安装文件下载">
       </label>
       <label class="field">
-        <span>次级标题（可空，显示在标题下面一行小字）</span>
+        <span>描述（可空，显示在标题下面一行小字）</span>
         <input class="inp" id="fSub" type="text" placeholder="比如：官网安装包 / 2026 最新版">
       </label>
       <label class="field">
@@ -123,6 +123,20 @@
       <button class="btn btn--ghost" data-close>取消</button>
       <button class="btn btn--ghost" id="clearPassBtn" title="把这条的口令删掉">清口令</button>
       <button class="btn btn--solid" id="saveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="subModal" data-open="false" role="dialog" aria-modal="true" aria-labelledby="subTitle">
+  <div class="modal__box" style="max-width:560px">
+    <div class="modal__t" id="subTitle">次级标题</div>
+    <div class="modal__d">这张卡片下面挂的子项。填了之后，前台点卡片会先弹出这个列表，点某一项才跳转。</div>
+    <div class="subrows" id="subRows"></div>
+    <button class="btn btn--ghost btn--sm" type="button" id="subAdd" style="margin-top:10px">＋ 加一行</button>
+    <div style="min-height:20px;margin-top:6px;font-size:12.5px;color:var(--lock)" id="subErr"></div>
+    <div class="modal__acts">
+      <button class="btn btn--ghost" type="button" data-close>取消</button>
+      <button class="btn btn--solid" type="button" id="subSave">保存</button>
     </div>
   </div>
 </div>

@@ -114,3 +114,16 @@
   letter-spacing: .06em; margin-bottom: 8px;
 }
 .dblock__n span { color: var(--ink-4); opacity: .7; margin-left: 4px; }
+
+/* ---------- 次级标题（子链接）编辑行 ---------- */
+.subrows { margin-top: 12px; }
+.subrow { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+.subrow .inp[data-k="title"] { flex: 0 0 42%; min-width: 0; }
+.subrow .inp[data-k="url"] { flex: 1 1 auto; min-width: 0; }
+.subrow__x {
+  flex: 0 0 30px; width: 30px; height: 30px;
+  border-radius: 8px; color: var(--ink-3);
+  background: var(--paper-sunk);
+  font-size: 16px; line-height: 1;
+}
+.subrow__x:hover { background: #FBEDEA; color: #C4523F; }
