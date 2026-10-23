@@ -385,12 +385,10 @@
     m.querySelector('.modal__t').textContent = title || '';
     m.querySelector('.lrows').innerHTML = subs.map(function (it) {
       const u = safeUrl(it.url);
-      const hostTxt = host(it.url);
       return '<a class="lrow" href="' + esc(u) + '"' +
         (/^https?:\/\//i.test(u) ? ' target="_blank" rel="noopener noreferrer"' : '') +
         ' data-url="' + esc(u) + '">' +
           '<span class="lrow__t">' + esc(it.title) + '</span>' +
-          (hostTxt ? '<span class="lrow__h">' + esc(hostTxt) + '</span>' : '') +
         '</a>';
     }).join('');
     m.dataset.open = 'true';
