@@ -1,14 +1,18 @@
 -- ============================================================
 -- 1188188.xyz 首页访问量统计
--- 位置：Supabase Dashboard → SQL Editor，整段粘贴执行。可重复执行。
 --
--- 设计要点
---   · 计数存在你自己库里，不依赖第三方统计服务
---   · 匿名（anon）只能「读总数」和「调用自增函数」，不能直接改数字
---   · 自增走 security definer 函数，绕过 RLS 但不放开表的写权限
+-- 位置：Supabase Dashboard → SQL Editor，整段粘贴后点 Run。
+--       项目必须是 mzxjyupadsakhsceidvm（看浏览器地址栏里有没有这串）
+--       可重复执行，不会报「已存在」。
+--
+-- 设计
+--   · 计数存在自己库里，不依赖第三方统计服务
+--   · 匿名只能「读总数」和「调用自增函数」，改不了数字
+--   · 自增走 security definer 函数，和仓库里 record_click 同一套写法
+--   · 结尾强制刷一次 PostgREST 缓存，避免「建好了但接口还是 404」
 -- ============================================================
 
--- ① 计数表（固定只有一行，id = 1）
+-- ① 计数表（固定一行，id = 1）
 create table if not exists public.site_views (
   id          int primary key,
   hits        bigint      not null default 0,
@@ -21,13 +25,17 @@ on conflict (id) do nothing;
 
 alter table public.site_views enable row level security;
 
--- ② 允许匿名读总数（页面上要显示）
+-- ② 允许匿名读总数（页面要显示）
 drop policy if exists site_views_read on public.site_views;
 create policy site_views_read on public.site_views
   for select to anon, authenticated
   using (true);
 
--- ③ 自增函数：谁都能调，但只能 +1，改不了别的
+-- 显式补表级授权。仓库里 sql/10 做过列级收紧，
+-- 新表不一定自动拿到 anon 的 select，这里写明。
+grant select on table public.site_views to anon, authenticated;
+
+-- ③ 自增函数：谁都能调，但只能 +1
 create or replace function public.bump_view()
 returns bigint
 language plpgsql
@@ -50,5 +58,19 @@ $$;
 revoke all on function public.bump_view() from public;
 grant execute on function public.bump_view() to anon, authenticated;
 
--- ④ 自检：执行后这一段应该返回一行，hits = 1
+-- ④ 刷 PostgREST 的 schema 缓存
+-- 不加这一句，刚建的表/函数可能几分钟内仍返回 404
+notify pgrst, 'reload schema';
+
+-- ⑤ 自检：执行完应该看到 table_exists / func_exists 都是 t，hits 是数字
+select
+  to_regclass('public.site_views') is not null as table_exists,
+  exists (
+    select 1 from pg_proc p
+      join pg_namespace n on n.oid = p.pronamespace
+     where n.nspname = 'public' and p.proname = 'bump_view'
+  ) as func_exists,
+  (select hits from public.site_views where id = 1) as hits;
+
+-- ⑥ 真跑一次自增，返回 1 就是通了（这条会真的 +1，属正常）
 select public.bump_view() as hits_after_test;
