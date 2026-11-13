@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>小爱音响控制台 · 下载</title>
+<title>小爱音响控制台 · 跳转下载地址</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -71,7 +71,6 @@
     <h1>小爱音响控制台</h1>
     <a class="btn" id="dl" href="https://pub-d389fdf4f7f647648018e562a94b7aba.r2.dev/%E5%B0%8F%E7%88%B1%E9%9F%B3%E5%93%8D%E6%8E%A7%E5%88%B6%E5%8F%B0/%E5%B0%8F%E7%88%B1%E9%9F%B3%E5%93%8D%E6%8E%A7%E5%88%B6%E5%8F%B0.pdf" target="_blank" rel="noopener">下载 / 打开</a>
     <p class="tip">点击上方按钮下载或打开</p>
-    <p class="views" id="viewsRow">访问量<b id="views">—</b></p>
   </div>
 
 <script>
@@ -82,48 +81,20 @@
   var HDR = { apikey: KEY, Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json' };
   var SEEN = 'pv_1188188';
 
-  var el = document.getElementById('views');
   var dl = document.getElementById('dl');
   if (dl) dl.href = PDF;
 
-  function show(n) {
-    if (typeof n === 'number' && isFinite(n)) {
-      el.textContent = n.toLocaleString('en-US');
-    }
-  }
-
   async function run() {
-    var n = null;
     var seen = false;
     try { seen = !!sessionStorage.getItem(SEEN); } catch (e) { seen = false; }
+    if (seen) return;
 
-    if (!seen) {
-      try {
-        var r = await fetch(SB + '/rest/v1/rpc/bump_view', {
-          method: 'POST', headers: HDR, body: '{}', keepalive: true
-        });
-        if (r.ok) {
-          var v = await r.json();
-          n = typeof v === 'string' ? parseInt(v, 10) : v;
-          try { sessionStorage.setItem(SEEN, '1'); } catch (e) {}
-        }
-      } catch (e) {}
-    }
-
-    if (n === null) {
-      try {
-        var q = await fetch(SB + '/rest/v1/site_views?select=hits&id=eq.1', { headers: HDR, keepalive: true });
-        if (q.ok) {
-          var rows = await q.json();
-          if (rows && rows[0]) {
-            var h = rows[0].hits;
-            n = typeof h === 'string' ? parseInt(h, 10) : h;
-          }
-        }
-      } catch (e) {}
-    }
-
-    show(n);
+    try {
+      var r = await fetch(SB + '/rest/v1/rpc/bump_view', {
+        method: 'POST', headers: HDR, body: '{}', keepalive: true
+      });
+      if (r.ok) { try { sessionStorage.setItem(SEEN, '1'); } catch (e) {} }
+    } catch (e) {}
   }
 
   run();
